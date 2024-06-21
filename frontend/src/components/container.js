@@ -1,39 +1,34 @@
 import React from 'react';
+import { useEffect, useState } from 'react';
 import './components.css';
+import ChatMessage from './ChatMessage';
+// import BotResponse from 'send';
 
+const BOT_MSGS = [
+  "Hi, how are you?",
+  "Ohh... I can't understand what you trying to say. Sorry!",
+  "I like to play games... But I don't know how to play!",
+  "Sorry if my answers are not relevant. :))",
+  "I feel sleepy! :("
+];
 
-function MessageBubble({role, timestamp, message}) {
+function botResponse() {
+  const r = Math.random(0, BOT_MSGS.length - 1);
+  const msgText = BOT_MSGS[r];
+  // const delay = msgText.split(" ").length * 100;
 
-  return (
-    <div className="msg-bubble">
-      <div className="msg-info">
-        <div className="msg-info-name">{role}</div>
-        <div className="msg-info-time">{timestamp}</div>
-      </div>
-      <div className="msg-text">
-        {message}
-      </div>
-    </div>
-  );
+  // setTimeout(() => {
+  //   appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
+  // }, delay);
+  return msgText;
 }
 
-function LeftMessage({role, timestamp, message}) {
-  return (
-    <div className="msg left-msg">
-      <MessageBubble role={role} timestamp={timestamp} message={message}/>
-    </div>
-  );
-}
 
-function RightMessage({role, timestamp, message}) {
-  return (
-    <div className="msg right-msg">
-      <MessageBubble role={role} timestamp={timestamp} message={message}/>
-    </div>
-  );
-}
+function Container({children}) {
 
-function Container() {
+  // const [query, setQuery] = useState('');
+  // const [history, setHistory] = useState([]);
+
   return (
     <section className="msger">
       <header className="msger-header">
@@ -45,17 +40,28 @@ function Container() {
         </div>
       </header>
 
-      <main className="msger-chat">
-        <LeftMessage role={"BOT"} timestamp={"2024-06-03"} message={"How are you?"}/>
-        <RightMessage role={"USER"} timestamp={"2024-06-03 12:00:12"} message={"I am fine."}/>
-      </main>
+      <ul>
+        {children.map(h => (
+          <p>{h.role}{h.message}</p>
+        ))}
+      </ul>
+      {/* <ChatMessage history={{history}} query={{query}}/> */}
 
-      <form className="msger-inputarea">
-        <input type={"text"} className={"msger-input"} placeholder={"Enter your message..."}/>
-        <button type="submit" className="msger-send-btn">Send</button>
-      </form>
+     
+      
     </section>
   );
 }
 
 export default Container;
+
+// {/* <WrappedHistory>{history}</WrappedHistory> */}
+// {
+//   history.map(h => {
+//     if (h.role === "user") {
+//       return <RightMessage role={"USER"} timestamp={"2024-06-03 12:00:12"} message={query}/>;
+//     } else {
+//       return <LeftMessage role={"BOT"} timestamp={"2024-06-03"} message={"How are you?"}/>;
+//     }}
+//   )
+// }
