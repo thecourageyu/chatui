@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useState } from 'react';
 import HelloWorld from './HelloWorld';
-import { Container } from './components/Container';
-import InputArea from './components/InputArea';
-
+// import { Container } from './components/Container';
+// import InputArea from './components/InputArea';
+import axios from 'axios';
 
 const BOT_MSGS = [
   "Hi, how are you?",
@@ -13,18 +13,110 @@ const BOT_MSGS = [
   "I feel sleepy! :("
 ];
 
-function botResponse() {
-  const r = Math.random(0, BOT_MSGS.length - 1);
-  const msgText = BOT_MSGS[r];
-  console.log(msgText)
-  let ttt = "FQ";
-  // const delay = msgText.split(" ").length * 100;
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
 
-  // setTimeout(() => {
-  //   appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
-  // }, delay);
-  // return msgText;
-  return ttt;
+function botResponse({q}) {
+  const r = getRndInteger(0, BOT_MSGS.length - 1);
+  const msgText = BOT_MSGS[r];
+  let botRsp;
+  console.log(msgText)
+
+
+  // -H 'accept: application/json' \
+  // -H 'Content-Type: application/json' \
+
+//   curl -X 'POST' \
+//   'http://10.39.72.43:23456/text/generate' \
+//   -H 'accept: application/json' \
+//   -H 'Content-Type: application/json' \
+//   -d '{
+//   "user_id": "YZK43",
+//   "conversation_id": "room1",
+//   "user_query": "新增高達站 時間改為2030年8月",
+//   "message_id": 0,
+//   "temperature": 0.2,
+//   "max_new_tokens": 2048
+// }'
+
+  const data123 = {
+    user_id: "YZK",
+    conversation_id: "RoomReact",
+    user_query: "你好嗎, Mecedes-Benz是一家公司嗎?",
+    message_id: "0",
+    temperature: "0.2",
+    max_new_tokens: "2048"
+  };
+
+  // url: "http://localhost:8000/api/model-response/", 
+  // "http://10.39.72.43:23456/text/generate"
+  // axios.get("http://localhost:8000/api/hello-world/", {
+  // axios({
+  //   method: "post",
+  //   url: "http://10.39.72.43:23456/text/generate",
+  //   headers: {
+  //       "Access-Control-Allow-Origin": "*",
+  //       'Accept': 'application/json',
+  //       'Content-Type': 'application/json',
+  //       'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
+  //   },
+  //   json: data123
+  // }).then(function (response) {
+  //   // botRsp = response.data.user_intent;
+  //   botRsp = response.data.message;
+  //   console.log(response.data.message);
+  //   console.log(botRsp)
+  // }).catch(function (error) {
+  //   console.log(error);
+  // });
+
+  axios.post('http://10.39.72.43:23456/text/generate/',  {
+    user_id: 'YZK43',
+    conversation_id: 'room1',
+    user_query: 'list USA the first 50 companies',
+    message_id: 0,
+    temperature: 0.2,
+    max_new_tokens: 1024
+  }).then(response => {
+    // console.log(response.data.content);
+    console.log(response);
+        // msgText = { role: "bot", message: response.data.content, timestamp: "2024-1234" }
+  }).catch(error => {
+    console.log(error);
+  });
+
+  // const response = axios.post(
+  //   'http://10.39.72.43:23456/text/generate',
+  //   // '{\n  "user_id": "YZK43",\n  "conversation_id": "room1",\n  "user_query": "新增高達站 時間改為2030年8月",\n  "message_id": 0,\n  "temperature": 0.2,\n  "max_new_tokens": 2048\n}',
+  //   {
+  //     user_id: 'YZK43',
+  //     conversation_id: 'room1',
+  //     user_query: '\u65B0\u589E\u9AD8\u9054\u7AD9 \u6642\u9593\u6539\u70BA2030\u5E748\u6708',
+  //     message_id: 0,
+  //     temperature: 0.2,
+  //     max_new_tokens: 2048
+  //   },
+  //   {
+  //     headers: {
+  //       'accept': 'application/json',
+  //       'Content-Type': 'application/json'
+  //     }
+  //   }
+  // );
+  
+  // console.log(response)
+  // axios.post('http://localhost:8000/api/hello-world/')
+  // .then(response => {
+  //   setMessage(response.data.message);
+  // })
+  // .catch(error => {
+  //   console.log(error);
+  // });
+
+  
+  return msgText;
+  // return botRsp;
 }
 
 function App() {
@@ -32,34 +124,33 @@ function App() {
   const [history, setHistory] = useState([{ role: "bot", message: "Hello world!", side: "left" }])
   const [idx, setIdx] = useState(0);
   useEffect(() => {
-    let botRsp = botResponse();
+    let botRsp = botResponse(query);
     // console.log(query);
     // console.log(idx);
     console.log(history.length);
     console.log(botRsp);
   }, [history]);
-  let i = 0;
 
   return (
     <>
       
-      <HelloWorld />
+      {/* <HelloWorld /> */}
    
-      <ul>
+      <ul key="hmap">
         {history.map(h => (
           <p>{h.role}: {h.message}</p>
         ))}
       </ul>
 
       {/* <form className="msger-inputarea"> */}
-      <input type="text" className="msger-input1" onChange={e => setQuery(e.target.value)} placeholder={"Enter your message..."}/> 
-      <button type="submit" className="msger-send-btn1" onClick={() => {
-        // let botRsp = botResponse();
+      <input type="text" className="msger-input" onChange={e => setQuery(e.target.value)} placeholder={"Enter your message..."}/> 
+      <button type="submit" className="msger-send-btn" onClick={() => {
+        let botRsp = botResponse({query});
         // setIdx(i++);
         setHistory([
           ...history,
           { role: "user", message: query, side: "right" },
-          { role: "bot", message: botResponse(), side: "left" }
+          { role: "bot", message: botRsp, side: "left" }
         ]);
       }}>Send</button>
         
