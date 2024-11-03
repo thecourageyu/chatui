@@ -4,8 +4,18 @@ import axios from 'axios';
 function HelloWorld() {
   const [message, setMessage] = useState('');
 
+  // useEffect(() => {
+  //   axios.get('http://localhost:8000/api/hello-world/')
+  //     .then(response => {
+  //       setMessage(response.data.message);
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+  //     });
+  // }, []);
+
   useEffect(() => {
-    axios.get('http://localhost:8000/api/hello-world/')
+    axios.get('http://localhost:23456/text/generation/')
       .then(response => {
         setMessage(response.data.message);
       })
