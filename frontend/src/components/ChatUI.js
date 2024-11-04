@@ -7,6 +7,9 @@ import { useState } from "react";
 import InputArea from "./InputArea";
 import axios from "axios";
 
+
+
+
 const BOT_MSGS = [
   "Hi, how are you?",
   "Ohh... I can't understand what you trying to say. Sorry!",
@@ -170,14 +173,13 @@ function ChatUI() {
   ]);
   const [idx, setIdx] = useState(0);
 
-  // useEffect(() => {
-  //   let botRsp = botResponse(query);
-  //   // console.log(query);
-  //   // console.log(idx);
-  //   setMsg(botRsp);
-  //   console.log(history.length);
-  //   console.log(botRsp);
-  // }, []);
+  const addHistory = (content) => {
+    setHistory([
+      ...history,
+      content
+    ]);
+  };
+
 
   useEffect(() => {
     newFunctionName();
