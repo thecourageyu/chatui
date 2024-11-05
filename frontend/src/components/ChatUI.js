@@ -130,14 +130,6 @@ function botResponse({ q }) {
 }
 
 async function ordersData() {
-  // try{
-  //     const res = await fetch('xxxxxxxxxxxx' + process.env.REACT_API)
-  //     return res
-  // } catch(err){
-  //   console.log(err)
-  //   return(err)
-  // }
-
   axios
     .post("http://localhost:23456/text/generate/", {
       user_id: "YZK43",
@@ -181,47 +173,32 @@ function ChatUI() {
   };
 
 
-  useEffect(() => {
-    newFunctionName();
-  }, [query]);
+  // const get_rsp = () => {
+  //   let msgText;
+  //   axios
+  //     .post("http://localhost:23456/text/generate/", {
+  //       user_id: "YZK43",
+  //       conversation_id: "room1",
+  //       user_query: "list USA the first 50 companies",
+  //       message_id: 0,
+  //       temperature: 0.2,
+  //       max_new_tokens: 1024,
+  //     })
+  //     .then((response) => {
+  //       // console.log(response.data.content);
+  //       console.log(response);
+  //       msgText = response.data.text;
+  //       // msgText = { role: "bot", message: response.data.content, timestamp: "2024-1234" }
+  //       console.log(msgText);
+  //       return msgText;
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //       return "GG la";
+  //     });
+  //   return msgText;
+  // };
 
-  async function newFunctionName() {
-    const response = await ordersData();
-    console.log(response);
-    // you can then set all your states directly in here
-  }
-
-  const get_rsp = () => {
-    let msgText;
-    axios
-      .post("http://localhost:23456/text/generate/", {
-        user_id: "YZK43",
-        conversation_id: "room1",
-        user_query: "list USA the first 50 companies",
-        message_id: 0,
-        temperature: 0.2,
-        max_new_tokens: 1024,
-      })
-      .then((response) => {
-        // console.log(response.data.content);
-        console.log(response);
-        msgText = response.data.text;
-        // msgText = { role: "bot", message: response.data.content, timestamp: "2024-1234" }
-        console.log(msgText);
-        return msgText;
-      })
-      .catch((error) => {
-        console.log(error);
-        return "GG la";
-      });
-    return msgText;
-  };
-
-  // const delay = msgText.split(" ").length * 100;
-
-  // setTimeout(() => {
-  //   appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
-  // }, delay);
   return (
     <div>
       <ul key="hmap">
@@ -233,35 +210,8 @@ function ChatUI() {
       </ul>
 
       {/* <form className="msger-inputarea"> */}
-      <input
-        type="text"
-        className="msger-input"
-        onChange={(e) => {
-          e.preventDefault();
-          setQuery(e.target.value);
-        }}
-        placeholder={"Enter your message..."}
-      />
-      <button
-        type="submit"
-        className="msger-send-btn"
-        onClick={(e) => {
-          // e.preventDefault()
-          let botRsp = botResponse({ query });
-          // setMsg(get_rsp())
-          setMsg(botRsp);
-          console.log(botRsp);
-          // setIdx(idx++);
-          console.log(msg);
-          setHistory([
-            ...history,
-            { role: "user", message: query, side: "right", idx1: idx },
-            { role: "bot", message: msg, side: "left", idx1: idx },
-          ]);
-        }}
-      >
-        Send
-      </button>
+      
+      <InputArea addHistory={addHistory}/>
 
       {/* </form> */}
     </div>

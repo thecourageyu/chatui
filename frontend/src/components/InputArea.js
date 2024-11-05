@@ -1,3 +1,4 @@
+import { useState } from "react";
 
 const BOT_MSGS = [
   "Hi, how are you?",
@@ -7,7 +8,7 @@ const BOT_MSGS = [
   "I feel sleepy! :("
 ];
 
-function botResponse() {
+function botResponse({query}) {
   const r = Math.random(0, BOT_MSGS.length - 1);
   const msgText = BOT_MSGS[r];
   // const delay = msgText.split(" ").length * 100;
@@ -15,6 +16,7 @@ function botResponse() {
   // setTimeout(() => {
   //   appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
   // }, delay);
+  console.log("Its work?")
   return msgText;
 }
 
@@ -22,22 +24,35 @@ function botResponse() {
 
 function InputArea({addHistory}) {
 
+  const [response, setResponse] = useState("How can I help you?");
+  const [query, setQuery] = useState("Hello world!");
 
-  const handleSubmit = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
 
+    addHistory(
+      { role: "user", message: query, side: "right", idx: 1 },
+      
+    );
 
+    // addHistory(
+      
+    //   { role: "bot", message: response, side: "left", idx: 2 },
+    // );
+    setQuery("");
   };
 
   return (
-    <form className="msger-inputarea">
+    <form className="msger-inputarea" onSubmit={handleSubmit}>
       <input
         type="text"
         className="msger-input"
-        onChange={(e) => {
-          e.preventDefault();
-          setQuery(e.target.value);
-        }}
         placeholder={"Enter your message..."}
+        onChange={(e) => {
+          setQuery(e.target.value)
+        }}
+          
       />
       <button
         type="submit"
@@ -46,13 +61,7 @@ function InputArea({addHistory}) {
           // e.preventDefault()
           let botRsp = botResponse({ query });
           // setMsg(get_rsp())
-          setMsg(botRsp);
-
-          addH
-          addHistory([
-            { role: "user", message: query, side: "right", idx1: idx },
-            { role: "bot", message: msg, side: "left", idx1: idx },
-          ]);
+          setResponse(botRsp);
         }}
       >
         Send
