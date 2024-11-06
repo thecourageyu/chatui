@@ -31,15 +31,23 @@ function InputArea({addHistory}) {
     e.preventDefault();
     
 
-    addHistory(
-      { role: "user", message: query, side: "right", idx: 1 },
-      
-    );
+    // addHistory(history => ([
+    //   ...history,
+    //   { role: "user", message: query, side: "right", idx: 1 },
+    //   { role: "bot", message: response, side: "left", idx: 2 },
+    // ]));
 
     // addHistory(
-      
-    //   { role: "bot", message: response, side: "left", idx: 2 },
+    //   { role: "bot", message: response, side: "left", idx: 2 }
+    
     // );
+
+    addHistory(
+      query
+    
+    );
+
+
     setQuery("");
   };
 
@@ -59,9 +67,13 @@ function InputArea({addHistory}) {
         className="msger-send-btn"
         onClick={(e) => {
           // e.preventDefault()
-          let botRsp = botResponse({ query });
+          // let botRsp = botResponse({ query });
           // setMsg(get_rsp())
-          setResponse(botRsp);
+          setResponse(() => botResponse({ query }));
+          addHistory(
+            response
+          
+          );
         }}
       >
         Send

@@ -168,7 +168,7 @@ function ChatUI() {
   const addHistory = (content) => {
     setHistory([
       ...history,
-      content
+      { role: "bot", message: content, side: "left" },
     ]);
   };
 
