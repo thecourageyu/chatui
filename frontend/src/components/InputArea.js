@@ -2,53 +2,37 @@ import { useState } from "react";
 
 const BOT_MSGS = [
   "Hi, how are you?",
-  "Ohh... I can't understand what you trying to say. Sorry!",
+  "Ohh... I can't understand what you're trying to say. Sorry!",
   "I like to play games... But I don't know how to play!",
   "Sorry if my answers are not relevant. :))",
   "I feel sleepy! :("
 ];
 
-function botResponse({query}) {
-  const r = Math.random(0, BOT_MSGS.length - 1);
-  const msgText = BOT_MSGS[r];
-  // const delay = msgText.split(" ").length * 100;
-
-  // setTimeout(() => {
-  //   appendMessage(BOT_NAME, BOT_IMG, "left", msgText);
-  // }, delay);
-  console.log("Its work?")
+// Function to randomly select a bot response
+function botResponse() {
+  const randomIndex = Math.floor(Math.random() * BOT_MSGS.length);
+  const msgText = BOT_MSGS[randomIndex];
   return msgText;
 }
 
-
-
-function InputArea({addHistory}) {
-
-  const [response, setResponse] = useState("How can I help you?");
-  const [query, setQuery] = useState("Hello world!");
+function InputArea({ addHistory }) {
+  const [input, setInput] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+    if (!input.trim()) return;
 
-    // addHistory(history => ([
-    //   ...history,
-    //   { role: "user", message: query, side: "right", idx: 1 },
-    //   { role: "bot", message: response, side: "left", idx: 2 },
-    // ]));
+    // Add user message to chat history
+    const userMessage = { message: input, role: "user", idx: Date.now(), side: "right" };
+    addHistory(userMessage);
 
-    // addHistory(
-    //   { role: "bot", message: response, side: "left", idx: 2 }
-    
-    // );
+    // Generate and add bot response
+    const botMsg = botResponse();
+    const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
+    addHistory(aiMessage);
 
-    addHistory(
-      query
-    
-    );
-
-
-    setQuery("");
+    // Clear input field
+    setInput("");
   };
 
   return (
@@ -56,26 +40,11 @@ function InputArea({addHistory}) {
       <input
         type="text"
         className="msger-input"
-        placeholder={"Enter your message..."}
-        onChange={(e) => {
-          setQuery(e.target.value)
-        }}
-          
+        placeholder="Enter your message..."
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
       />
-      <button
-        type="submit"
-        className="msger-send-btn"
-        onClick={(e) => {
-          // e.preventDefault()
-          // let botRsp = botResponse({ query });
-          // setMsg(get_rsp())
-          setResponse(() => botResponse({ query }));
-          addHistory(
-            response
-          
-          );
-        }}
-      >
+      <button type="submit" className="msger-send-btn">
         Send
       </button>
     </form>

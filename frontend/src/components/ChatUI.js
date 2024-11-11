@@ -160,18 +160,26 @@ function ChatUI() {
 
   const [query, setQuery] = useState("Hi, BMW!");
   const [msg, setMsg] = useState("FQ, BMW!");
-  const [history, setHistory] = useState([
-    { role: "bot", message: "Hello world!", side: "left" },
-  ]);
+  // const [history, setHistory] = useState([
+  //   { role: "bot", message: "Hello world!", side: "left" },
+  // ]);
+
+  const [history, setHistory] = useState([])
   const [idx, setIdx] = useState(0);
 
-  const addHistory = (content) => {
-    setHistory([
-      ...history,
-      { role: "bot", message: content, side: "left" },
-    ]);
-  };
+  // const addHistory = (content) => {
+  //   setHistory([
+  //     ...history,
+  //     content,
+  //   ]);
+  // };
 
+
+
+  // Function to add a new message to the message history
+  const addHistory = (newMessage) => {
+    setHistory((prevMessages) => [...prevMessages, newMessage]);
+  };
 
   // const get_rsp = () => {
   //   let msgText;
