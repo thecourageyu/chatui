@@ -1,11 +1,11 @@
 
 import React, { useEffect } from "react";
 import { useState } from "react";
-// import HelloWorld from "./HelloWorld";
-// import { Container } from './components/Container';
+
 
 import InputArea from "./InputArea";
 import axios from "axios";
+import MessageContainer from "./MessageContainer";
 
 
 
@@ -159,22 +159,7 @@ function ChatUI() {
   const msgText = BOT_MSGS[r];
 
   const [query, setQuery] = useState("Hi, BMW!");
-  const [msg, setMsg] = useState("FQ, BMW!");
-  // const [history, setHistory] = useState([
-  //   { role: "bot", message: "Hello world!", side: "left" },
-  // ]);
-
   const [history, setHistory] = useState([])
-  const [idx, setIdx] = useState(0);
-
-  // const addHistory = (content) => {
-  //   setHistory([
-  //     ...history,
-  //     content,
-  //   ]);
-  // };
-
-
 
   // Function to add a new message to the message history
   const addHistory = (newMessage) => {
@@ -209,13 +194,15 @@ function ChatUI() {
 
   return (
     <div>
-      <ul key="hmap">
+      {/* <ul key="hmap">
         {history.map((h) => (
           <p>
             {h.role}: {h.message}
           </p>
         ))}
-      </ul>
+      </ul> */}
+
+      <MessageContainer messages={history}></MessageContainer>
 
       {/* <form className="msger-inputarea"> */}
       

@@ -1,0 +1,56 @@
+/* Main container styling */
+.message-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    max-height: 80vh;
+    overflow-y: auto;
+    background-color: #f7f7f8;
+  }
+  
+  /* Common message styling */
+  .message {
+    max-width: 75%;
+    padding: 10px 15px;
+    border-radius: 12px;
+    font-size: 16px;
+    line-height: 1.4;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Bot message styling */
+  .bot-message {
+    background-color: #e0e0e0;
+    color: #333;
+    align-self: flex-start;
+    border-top-left-radius: 0;
+  }
+  
+  /* User message styling */
+  .user-message {
+    background-color: #0084ff;
+    color: #fff;
+    align-self: flex-end;
+    border-top-right-radius: 0;
+  }
+  
+  /* Scrollbar customization for better appearance */
+  .message-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .message-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .message-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+  }
+  
+  .message-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+  
