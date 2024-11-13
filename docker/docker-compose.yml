@@ -1,0 +1,93 @@
+services:
+
+  mongo:
+    image: mongo
+    # restart: always
+    container_name: yzk_mongo
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root123
+
+  mongo-express:
+    # basicAuth credentials are "admin:pass", it is recommended you change this in your config.js!
+    image: mongo-express
+    container_name: yzk_me
+    # restart: always
+    ports:
+            #- 8081:8081
+      - 9091:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: root123
+      ME_CONFIG_MONGODB_URL: mongodb://root:root123@mongo:27017/
+
+  vllm:
+          #image: vllm/vllm-openai:latest
+    image: vllm/vllm-openai
+    container_name: yzk_llm
+    # restart: always
+    shm_size: '8gb'
+    ports:
+      - 8716:8000
+    volumes:
+      
+      # - /home/yu-zhe/Desktop/models:/models
+      - C:\Users\yuzhe\projects\chatui\models:/models
+        #- vllm-data:/workspace/.cache/huggingface
+    # networks:
+    #   - yzk-network
+#    environment:
+#      - VLLM_ATTENTION_BACKEND=${VLLM_ATTENTION_BACKEND}
+    entrypoint: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+    command: 
+      --port=8000 --host=0.0.0.0 --tensor-parallel-size=1 --max-model-len=1024 --gpu-memory-utilization=0.95 ${VLLM_ARGS}
+    #--port=8000 --host=0.0.0.0 ${VLLM_ARGS}
+      #    environment:
+      #      - NCCL_IGNORE_DISABLED_P2P=1
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8000/v1/models" ]
+#      interval: 180s
+#      timeout: 5s
+#     retries: 3
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: all
+#            device_ids: ["0"]
+            capabilities: ["gpu"]
+
+  chatui:
+    
+    build:
+      # dockerfile: ./Dockerfile_python_nodejs
+      dockerfile: ./Dockerfile
+      context: .
+    image: chatui:latest
+    #restart: always
+    container_name: yzk_chatui
+    #environment:
+    volumes:
+      - "C:\\\\Users\\\\yuzhe\\\\projects\\\\:/work/YZKMSI"
+
+    # command: ./start.sh
+    command: tail -f /dev/null
+#      - "C:\\Users\\yuzhe\\projects\\HH:/work"
+      # - "logs:/var/log"
+    ports:
+      - "9991:9991"
+      - "3000:3000"
+        #    env_file: "webapp.env"
+        #    environment:
+        #      - MODEL_PATH=/models/Llama-3.2-11B-Vision-Instruct
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+#              device_ids: ["0", "1"]
+              capabilities: ["gpu"]
