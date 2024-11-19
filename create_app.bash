@@ -13,6 +13,7 @@ npx create-react-app frontend
 pip install -r template/backend/requirements.txt
 cd frontend 
 npm install --save axios
+npm install --save mongoose
 cd -
 
 # Step 3: Build the API Endpoints in Django
