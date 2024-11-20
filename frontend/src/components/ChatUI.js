@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useState } from "react";
 
 
@@ -28,53 +28,6 @@ function botResponse({ q }) {
   // let msgText;
   let botRsp;
   console.log(msgText);
-
-  // -H 'accept: application/json' \
-  // -H 'Content-Type: application/json' \
-
-  //   curl -X 'POST' \
-  //   'http://10.39.72.43:23456/text/generate' \
-  //   -H 'accept: application/json' \
-  //   -H 'Content-Type: application/json' \
-  //   -d '{
-  //   "user_id": "YZK43",
-  //   "conversation_id": "room1",
-  //   "user_query": "新增高達站 時間改為2030年8月",
-  //   "message_id": 0,
-  //   "temperature": 0.2,
-  //   "max_new_tokens": 2048
-  // }'
-
-  const data123 = {
-    user_id: "YZK",
-    conversation_id: "RoomReact",
-    user_query: "你好嗎, Mecedes-Benz是一家公司嗎?",
-    message_id: "0",
-    temperature: "0.2",
-    max_new_tokens: "2048",
-  };
-
-  // url: "http://localhost:8000/api/model-response/",
-  // "http://10.39.72.43:23456/text/generate"
-  // axios.get("http://localhost:8000/api/hello-world/", {
-  // axios({
-  //   method: "post",
-  //   url: "http://10.39.72.43:23456/text/generate",
-  //   headers: {
-  //       "Access-Control-Allow-Origin": "*",
-  //       'Accept': 'application/json',
-  //       'Content-Type': 'application/json',
-  //       'Access-Control-Allow-Methods':'GET,PUT,POST,DELETE,PATCH,OPTIONS'
-  //   },
-  //   json: data123
-  // }).then(function (response) {
-  //   // botRsp = response.data.user_intent;
-  //   botRsp = response.data.message;
-  //   console.log(response.data.message);
-  //   console.log(botRsp)
-  // }).catch(function (error) {
-  //   console.log(error);
-  // });
 
   axios
     .post("http://localhost:23456/text/generate/", {

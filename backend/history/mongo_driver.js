@@ -1,6 +1,10 @@
+const fs = require('fs');
 const { MongoClient } = require('mongodb');
+
 // const uri = 'mongodb://localhost:27017'; // 連接到本地的 MongoDB
-const uri = 'mongodb://root:root123@mongo:27017'; // 連接到本地的 MongoDB
+const credentials = JSON.parse(fs.readFileSync('./etc/credentials.json'));
+// const uri = 'mongodb://root:root123@mongo:27017'; // 連接到本地的 MongoDB
+const uri = `mongodb://${credentials.username}:${credentials.password}@mongo:27017`;
 
 const client = new MongoClient(uri);
 
