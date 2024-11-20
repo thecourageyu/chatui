@@ -1,7 +1,13 @@
-const axios = require('axios');
+// const axios = require('axios');
+import axios from "axios";
+
+// How to Enable ES Modules in Node.js
+// 1. Add "type": "module" in package.json
+// 2. Use the .mjs Extension
+// 3. node --input-type=module main.js
 
 // Add data
-async function addData() {
+async function addMessage() {
 
     const payload = {
         collectionName: 'YZK01',
@@ -23,14 +29,20 @@ async function addData() {
 }
 
 // Get data
-async function getData() {
+export async function getMessages(collectionName, query, limit) {
     try {
+        // const params = {
+        //     collectionName: "YZK01",
+        //     query: JSON.stringify({ conversation_id: "1" }),
+        //     limit: 10
+        // };
         const params = {
-            collectionName: "YZK01",
-            query: JSON.stringify({ conversation_id: "1" }),
-            limit: 10
+            collectionName: collectionName,
+            query: JSON.stringify(query),
+            limit: limit
         };
-        const response = await axios.get('http://localhost:27018/get', {
+
+        const response = await axios.get('http://localhost:27018/messages', {
             params
         });
         console.log("Get Response:", response.data);
@@ -55,7 +67,11 @@ async function dropCollection() {
 
 // Example usage
 (async () => {
-    await addData();
-    await getData();
+    await addMessage();
+    await getMessages("YZK01", { conversation_id: "1" }, 10);
     await dropCollection();
 })();
+
+console.log("YYYYYYYYYYYYYYY");
+const msg = getMessages("YZK01", { conversation_id: "1" }, 10);
+console.log(msg);

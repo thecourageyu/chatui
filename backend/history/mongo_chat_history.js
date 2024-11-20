@@ -5,7 +5,7 @@ const fs = require('fs');
 const { MongoClient } = require('mongodb');
 
 // >>> install packages
-// npm install express mongodb body-parser cors --save
+// npm install axios express mongodb body-parser cors --save
 // >>> start the service
 // node server.js
 // >>> add
@@ -56,7 +56,7 @@ app.post('/add', async (req, res) => {
 });
 
 // Route to get data from a collection
-app.get('/get', async (req, res) => {
+app.get('/messages', async (req, res) => {
     try {
         const { collectionName, query, limit } = req.query;
 
