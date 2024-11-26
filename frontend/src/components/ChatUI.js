@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 
 
@@ -8,142 +8,87 @@ import axios from "axios";
 import MessageContainer from "./MessageContainer";
 
 
-
-
-const BOT_MSGS = [
-  "Hi, how are you?",
-  "Ohh... I can't understand what you trying to say. Sorry!",
-  "I like to play games... But I don't know how to play!",
-  "Sorry if my answers are not relevant. :))",
-  "I feel sleepy! :(",
-];
-
 function getRndInteger(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function botResponse({ q }) {
-  const r = getRndInteger(0, BOT_MSGS.length - 1);
-  const msgText = BOT_MSGS[r];
-  // let msgText;
-  let botRsp;
-  console.log(msgText);
 
-  axios
-    .post("http://localhost:23456/text/generate/", {
-      user_id: "YZK43",
-      conversation_id: "room1",
-      user_query: "list USA the first 50 companies",
-      message_id: 0,
-      temperature: 0.2,
-      max_new_tokens: 1024,
-    })
-    .then((response) => {
-      // console.log(response.data.content);
-      console.log(response);
-      msgText = response.data.text;
-      // msgText = { role: "bot", message: response.data.content, timestamp: "2024-1234" }
-      console.log(msgText);
-      return msgText;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+export async function getMessages(setHistory, collectionName, query, limit) {
+  try {
+      // const params = {
+      //     collectionName: "YZK01",
+      //     query: JSON.stringify({ conversation_id: "1" }),
+      //     limit: 10
+      // };
+      const params = {
+          collectionName: collectionName,
+          query: JSON.stringify(query),
+          limit: limit
+      };
+      console.log("Get params:", params);
 
-  // const response = axios.post(
-  //   'http://10.39.72.43:23456/text/generate',
-  //   // '{\n  "user_id": "YZK43",\n  "conversation_id": "room1",\n  "user_query": "新增高達站 時間改為2030年8月",\n  "message_id": 0,\n  "temperature": 0.2,\n  "max_new_tokens": 2048\n}',
-  //   {
-  //     user_id: 'YZK43',
-  //     conversation_id: 'room1',
-  //     user_query: '\u65B0\u589E\u9AD8\u9054\u7AD9 \u6642\u9593\u6539\u70BA2030\u5E748\u6708',
-  //     message_id: 0,
-  //     temperature: 0.2,
-  //     max_new_tokens: 2048
-  //   },
-  //   {
-  //     headers: {
-  //       'accept': 'application/json',
-  //       'Content-Type': 'application/json'
-  //     }
-  //   }
-  // );
+      const response = await axios.get('/messages', {
+          params
+      });
 
-  // console.log(response)
-  // axios.post('http://localhost:8000/api/hello-world/')
-  // .then(response => {
-  //   setMessage(response.data.message);
-  // })
-  // .catch(error => {
-  //   console.log(error);
-  // });
+      const msg = response.data.data;
+      setHistory(msg);
+      
+      console.log('Request URL:', response.config.url);
 
-  return msgText;
-  // return botRsp;
+      console.log("Get Response:", response.data.data);
+  } catch (error) {
+      console.error("Get Error:", error.response ? error.response.data : error.message);
+  }
 }
-
-async function ordersData() {
-  axios
-    .post("http://localhost:23456/text/generate/", {
-      user_id: "YZK43",
-      conversation_id: "room1",
-      user_query: "list USA the first 50 companies",
-      message_id: 0,
-      temperature: 0.2,
-      max_new_tokens: 1024,
-    })
-    .then((response) => {
-      // console.log(response.data.content);
-      console.log(response);
-      const msgText = response.data.text;
-      // msgText = { role: "bot", message: response.data.content, timestamp: "2024-1234" }
-      console.log(msgText);
-      return msgText;
-    })
-    .catch((error) => {
-      console.log(error);
-      return "never gonna give up";
-    });
-}
-
 
 function ChatUI() {
-  const r = Math.random(0, BOT_MSGS.length - 1);
-  const msgText = BOT_MSGS[r];
 
   const [query, setQuery] = useState("Hi, BMW!");
   const [history, setHistory] = useState([])
+
+  useEffect(() => {
+
+    // const getMessages = (collectionName, query12, limit) => {
+    //   try {
+
+    //       const params = {
+    //           collectionName: collectionName,
+    //           query: JSON.stringify(query12),
+    //           limit: limit
+    //       };
+
+    //       const response = axios.get('/messages', {
+    //           params
+    //       });
+    //       const msg = response.data.data;
+    //       setHistory(msg);
+    //       console.log("Get Response:", response.data);
+    //   } catch (error) {
+    //       console.error("Get Error:", error.response ? error.response.data : error.message);
+    //   }
+    // }
+
+
+    const msg = getMessages(setHistory, "YZK01", { conversation_id: "1" }, 10);
+    // const fetchMessages = async () => {
+    //     try {
+    //         const response = await fetch("http://localhost:27018/messages");
+    //         const data = await response.json();
+    //         setMessages(data);
+    //     } catch (error) {
+    //         console.error("Error fetching messages:", error);
+    //     }
+    // };
+
+    // fetchMessages();
+  }, []);
 
   // Function to add a new message to the message history
   const addHistory = (newMessage) => {
     setHistory((prevMessages) => [...prevMessages, newMessage]);
   };
 
-  // const get_rsp = () => {
-  //   let msgText;
-  //   axios
-  //     .post("http://localhost:23456/text/generate/", {
-  //       user_id: "YZK43",
-  //       conversation_id: "room1",
-  //       user_query: "list USA the first 50 companies",
-  //       message_id: 0,
-  //       temperature: 0.2,
-  //       max_new_tokens: 1024,
-  //     })
-  //     .then((response) => {
-  //       // console.log(response.data.content);
-  //       console.log(response);
-  //       msgText = response.data.text;
-  //       // msgText = { role: "bot", message: response.data.content, timestamp: "2024-1234" }
-  //       console.log(msgText);
-  //       return msgText;
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //       return "GG la";
-  //     });
-  //   return msgText;
-  // };
 
   return (
     <div>

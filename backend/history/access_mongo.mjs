@@ -41,11 +41,14 @@ export async function getMessages(collectionName, query, limit) {
             query: JSON.stringify(query),
             limit: limit
         };
+        console.log("Get params:", params);
 
         const response = await axios.get('http://localhost:27018/messages', {
             params
         });
-        console.log("Get Response:", response.data);
+        console.log('Request URL:', response.config.url);
+
+        console.log("Get Response:", response.data.data);
     } catch (error) {
         console.error("Get Error:", error.response ? error.response.data : error.message);
     }
@@ -53,7 +56,7 @@ export async function getMessages(collectionName, query, limit) {
 
 // Drop collection
 async function dropCollection() {
-    const payload = { collectionName: "YZK01" }
+    const payload = { collectionName: "YZK02" }
     try {
         const response = await axios.delete('http://localhost:27018/drop', {
             data: payload,

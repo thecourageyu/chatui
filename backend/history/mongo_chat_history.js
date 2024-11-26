@@ -16,7 +16,7 @@ const port = 27018;
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
-// app.use(cors());
+app.use(cors());
 // MongoDB connection settings
 
 const credentials = JSON.parse(fs.readFileSync('./etc/credentials.json'));
@@ -97,7 +97,7 @@ app.delete('/drop', async (req, res) => {
 });
 
 // Start the server and connect to MongoDB
-app.listen(port, async () => {
+app.listen(port, "0.0.0.0", async () => {
     console.log(`Server running at http://localhost:${port}`);
     await connectToDatabase();
 });

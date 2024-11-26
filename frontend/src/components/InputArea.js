@@ -30,34 +30,34 @@ function InputArea({ addHistory }) {
     addHistory(userMessage);
 
     // Generate and add bot response
-    // const botMsg = botResponse();
-    // const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
-    // addHistory(aiMessage);
+    const botMsg = botResponse();
+    const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
+    addHistory(aiMessage);
 
-    axios
-    .post("http://localhost:23456/text/generate/", {
-      user_id: "YZK43",
-      conversation_id: "room1",
-      user_query: input,
-      message_id: 0,
-      temperature: 0.2,
-      max_new_tokens: 1024,
-    })
-    .then((response) => {
-      console.log(response);
-      const botMsg = response.data.text;
-      const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
+    // axios
+    // .post("http://localhost:23456/text/generate/", {
+    //   user_id: "YZK43",
+    //   conversation_id: "room1",
+    //   user_query: input,
+    //   message_id: 0,
+    //   temperature: 0.2,
+    //   max_new_tokens: 1024,
+    // })
+    // .then((response) => {
+    //   console.log(response);
+    //   const botMsg = response.data.text;
+    //   const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
 
-      addHistory(aiMessage);
+    //   addHistory(aiMessage);
 
-    })
-    .catch((error) => {
-      console.log(error);
-      const botMsg = botResponse();
-      const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
+    // })
+    // .catch((error) => {
+    //   console.log(error);
+    //   const botMsg = botResponse();
+    //   const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
 
-      addHistory(aiMessage);
-    });
+    //   addHistory(aiMessage);
+    // });
 
     // Clear input field
     setInput("");
