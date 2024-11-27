@@ -15,11 +15,7 @@ function getRndInteger(min, max) {
 
 export async function getMessages(setHistory, collectionName, query, limit) {
   try {
-      // const params = {
-      //     collectionName: "YZK01",
-      //     query: JSON.stringify({ conversation_id: "1" }),
-      //     limit: 10
-      // };
+
       const params = {
           collectionName: collectionName,
           query: JSON.stringify(query),
@@ -41,6 +37,7 @@ export async function getMessages(setHistory, collectionName, query, limit) {
       console.error("Get Error:", error.response ? error.response.data : error.message);
   }
 }
+
 
 function ChatUI() {
 
@@ -70,16 +67,8 @@ function ChatUI() {
     // }
 
 
-    const msg = getMessages(setHistory, "YZK01", { conversation_id: "1" }, 10);
-    // const fetchMessages = async () => {
-    //     try {
-    //         const response = await fetch("http://localhost:27018/messages");
-    //         const data = await response.json();
-    //         setMessages(data);
-    //     } catch (error) {
-    //         console.error("Error fetching messages:", error);
-    //     }
-    // };
+    const msg = getMessages(setHistory, "YZK01", { conversation_id: "1" }, 1000);
+   
 
     // fetchMessages();
   }, []);

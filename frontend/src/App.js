@@ -4,6 +4,17 @@ import axios from "axios";
 
 // https://github.com/darenge5965/reactSimpleTodo/blob/main/src/components/CreateForm.jsx
 
+// *** Proxy Configuration in React
+// If you use npm start during development, React's development server might need a proxy to forward requests to the backend.
+// Solution:
+// Add a proxy field in the package.json file of your React app:
+
+// json
+// "proxy": "http://localhost:27018"
+// This ensures that API requests like /api are forwarded to the Express app.
+
+
+
 // Add data
 async function addMessage() {
 
