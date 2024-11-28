@@ -41,7 +41,6 @@ export async function getMessages(setHistory, collectionName, query, limit) {
 
 function ChatUI() {
 
-  const [query, setQuery] = useState("Hi, BMW!");
   const [history, setHistory] = useState([])
 
   useEffect(() => {
@@ -67,7 +66,7 @@ function ChatUI() {
     // }
 
 
-    const msg = getMessages(setHistory, "YZK01", { conversation_id: "1" }, 1000);
+    const msg = getMessages(setHistory, "YZK01", { conversation_id: "1" }, null);
    
 
     // fetchMessages();

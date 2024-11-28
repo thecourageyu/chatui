@@ -65,7 +65,11 @@ app.get('/messages', async (req, res) => {
         }
 
         const collection = db.collection(collectionName);
-        const results = await collection.find(JSON.parse(query)).limit(Number(limit)).toArray();
+        if (limit == null) {
+            const results = await collection.find(JSON.parse(query)).toArray();
+        } else {
+            const results = await collection.find(JSON.parse(query)).limit(Number(limit)).toArray();
+        }
 
         res.status(200).json({ message: "Data retrieved successfully!", data: results });
     } catch (error) {
