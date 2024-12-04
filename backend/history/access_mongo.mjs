@@ -1,5 +1,7 @@
 // const axios = require('axios');
 import axios from "axios";
+import { query } from "express";
+import { Timestamp } from "mongodb";
 
 // How to Enable ES Modules in Node.js
 // 1. Add "type": "module" in package.json
@@ -19,6 +21,21 @@ async function addMessage() {
             message: 'how are you',
             age: null
         }
+    };
+    try {
+        const response = await axios.post('http://localhost:27018/add', payload);
+        console.log("Add Response:", response.data);
+    } catch (error) {
+        console.error("Add Error:", error.response ? error.response.data : error.message);
+    }
+}
+
+// Add data
+async function addData(collectionName, data) {
+
+    const payload = {
+        collectionName: collectionName,
+        data: data,
     };
     try {
         const response = await axios.post('http://localhost:27018/add', payload);
@@ -68,11 +85,31 @@ async function dropCollection() {
     }
 }
 
+
+async function deleteOne() {
+    const payload = { collectionName: "Conversation", query: { conversation_id: "test01" } }
+    try {
+        const response = await axios.delete('http://localhost:27018/deleteOne', {
+            data: payload,
+
+        });
+        console.log("Drop Response:", response.data);
+    } catch (error) {
+        console.error("Drop Error:", error.response ? error.response.data : error.message);
+    }
+}
+
+
+const now = new Date();
+
 // Example usage
 (async () => {
     await addMessage();
+    await addData("Conversation", { conversation_id: "test01", user_id: "yzk", timestamp: now.toISOString() });
     await getMessages("YZK01", { conversation_id: "1" }, 10);
+    await getMessages("Conversation", {}, 10);
     await dropCollection();
+    await deleteOne();
 })();
 
 console.log("YYYYYYYYYYYYYYY");
