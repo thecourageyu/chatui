@@ -46,13 +46,9 @@ async function addData(collectionName, data) {
 }
 
 // Get data
-export async function getMessages(collectionName, query, limit) {
+export async function findData(collectionName, query, limit) {
     try {
-        // const params = {
-        //     collectionName: "YZK01",
-        //     query: JSON.stringify({ conversation_id: "1" }),
-        //     limit: 10
-        // };
+       
         const params = {
             collectionName: collectionName,
             query: JSON.stringify(query),
@@ -60,16 +56,21 @@ export async function getMessages(collectionName, query, limit) {
         };
         console.log("Get params:", params);
 
-        const response = await axios.get('http://localhost:27018/messages', {
+        const response = await axios.get('http://localhost:27018/find', {
             params
         });
         console.log('Request URL:', response.config.url);
 
-        console.log("Get Response:", response.data.data);
+        console.log("Get Response:", response.data);
+        console.log(`response.data.message (defined by yzk): ${response.data.message}`)
+        // console.log(`response.data.message (defined by yzk): ${JSON.parse(response.data.data).toISOString}`)
+        console.log(`response.data.message (defined by yzk): ${response.data.data}`)
+
     } catch (error) {
         console.error("Get Error:", error.response ? error.response.data : error.message);
     }
 }
+
 
 // Drop collection
 async function dropCollection() {
@@ -86,10 +87,11 @@ async function dropCollection() {
 }
 
 
-async function deleteOne() {
-    const payload = { collectionName: "Conversation", query: { conversation_id: "test01" } }
+async function deleteData(collectionName, query) {
+    // const payload = { collectionName: "Conversation", query: { conversation_id: "test01" } }
+    const payload = { collectionName: collectionName, query: query }
     try {
-        const response = await axios.delete('http://localhost:27018/deleteOne', {
+        const response = await axios.delete('http://localhost:27018/delete', {
             data: payload,
 
         });
@@ -104,14 +106,12 @@ const now = new Date();
 
 // Example usage
 (async () => {
-    await addMessage();
-    await addData("Conversation", { conversation_id: "test01", user_id: "yzk", timestamp: now.toISOString() });
-    await getMessages("YZK01", { conversation_id: "1" }, 10);
-    await getMessages("Conversation", {}, 10);
+    // await addMessage();
+    await addData("Conversation", { conversation_id: "conversation01", user_id: "yzk", timestamp: now.toISOString() });
+    await addData("Message", { conversation_id: "conversation01", user_id: "yzk", message: "how are you?", timestamp: now.toISOString() });
+    
+    await findData("Conversation", { conversation_id: "conversation01" }, 10);
+    await findData("Message", {}, 10);
     await dropCollection();
-    await deleteOne();
+    await deleteData();
 })();
-
-console.log("YYYYYYYYYYYYYYY");
-const msg = getMessages("YZK01", { conversation_id: "1" }, 10);
-console.log(msg);

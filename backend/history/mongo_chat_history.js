@@ -42,16 +42,16 @@ app.post('/add', async (req, res) => {
         const { collectionName, data } = req.body;
 
         if (!collectionName || !data) {
-            return res.status(400).json({ error: "Collection name and data are required." });
+            return res.status(400).json({ error: "[/add] Collection name and data are required." });
         }
 
         const collection = db.collection(collectionName);
         const result = await collection.insertOne(data);
 
-        res.status(200).json({ message: "Data added successfully!", result });
+        res.status(200).json({ message: "[/add] Data added successfully!", result });
     } catch (error) {
-        console.error("Error adding data:", error);
-        res.status(500).json({ error: "Failed to add data." });
+        console.error("[/add] Error adding data:", error);
+        res.status(500).json({ error: "[/add] Failed to add data." });
     }
 });
 
@@ -81,6 +81,34 @@ app.get('/messages', async (req, res) => {
     }
 });
 
+
+// Route to get data from a collection
+app.get('/find', async (req, res) => {
+    try {
+        const { collectionName, query, limit } = req.query;
+
+        if (!collectionName) {
+            return res.status(400).json({ error: "[/find] Collection name is required." });
+        }
+
+        const collection = db.collection(collectionName);
+        if (limit == null) {
+            const results = await collection.find(JSON.parse(query)).toArray();
+            res.status(200).json({ message: "[/find] Data retrieved successfully!", data: results });
+
+        } else {
+            const results = await collection.find(JSON.parse(query)).limit(Number(limit)).toArray();
+            res.status(200).json({ message: "[/find] Data retrieved successfully!", data: results });
+
+        }
+
+    } catch (error) {
+        console.error("[/find] Error getting data:", error);
+        res.status(500).json({ error: "[/find] Failed to retrieve data." });
+    }
+});
+
+
 // Route to drop a collection
 app.delete('/drop', async (req, res) => {
     try {
@@ -104,7 +132,7 @@ app.delete('/drop', async (req, res) => {
 });
 
 
-app.delete("/deleteOne", async (request, response) => {
+app.delete("/delete", async (request, response) => {
     try {
         const {collectionName, query} = request.body;
 
