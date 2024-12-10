@@ -72,13 +72,13 @@ function ChatUI() {
   const [selectedConversationId, setSelectedConversationId] = useState(1)
   const [history, setHistory] = useState([])
 
+  // useEffect(() => {
+  //   const convList = findData(setConversationList, "ConversationList", {}, null)
+  // }, []);
+
   useEffect(() => {
+
     const convList = findData(setConversationList, "ConversationList", {}, null)
-  }, []);
-
-  useEffect(() => {
-
-
     const msg = getMessages(setHistory, "YZK01", { conversation_id: "1" }, null);
    
 
@@ -94,7 +94,7 @@ function ChatUI() {
 
 
   // Add a new conversation
-  const addConversation = (conversationList) => {
+  const addConversation = () => {
     const newId = conversationList.length ? conversationList[conversationList.length - 1].id + 1 : 1;
     const now = new Date();
     setConversationList([
@@ -115,17 +115,17 @@ function ChatUI() {
     }
   };
 
-  // Get the selected conversation
-  const selectedConversation = conversationList.find(
-    (conv) => conv.id === selectedConversationId
-  );
+  // // Get the selected conversation
+  // const selectedConversation = conversationList.find(
+  //   (conv) => conv.id === selectedConversationId
+  // );
 
   return (
     
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Left sidebar */}
       <div style={{ width: "25%", background: "#f0f0f0", padding: "10px" }}>
-        <button onClick={addConversation(conversationList)} style={{ marginBottom: "10px" }}>
+        <button onClick={() => addConversation()} style={{ marginBottom: "10px" }}>
           Add Conversation
         </button>
         {conversationList.map((conv) => (
