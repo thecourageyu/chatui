@@ -74,7 +74,7 @@ export async function findData(collectionName, query, limit) {
 
 // Drop collection
 async function dropCollection() {
-    const payload = { collectionName: "YZK02" }
+    const payload = { collectionName: "ConversationList" }
     try {
         const response = await axios.delete('http://localhost:27018/drop', {
             data: payload,

@@ -20,9 +20,9 @@ function botResponse() {
 
 async function addMessage(addHistory, message) {
   const payload = {
-    collectionName: "YZK01",
+    collectionName: "ChatMessage",
     data: {
-      conversation_id: "1",
+      conversation_id: message.conversationId,
       message_id: message.idx,
       user_id: "yzk",
       role: message.role,
@@ -42,7 +42,7 @@ async function addMessage(addHistory, message) {
   }
 }
 
-function InputArea({ addHistory }) {
+function InputArea({ addHistory, conversationId }) {
   const [input, setInput] = useState("");
 
   const handleSubmit = (e) => {
@@ -51,6 +51,7 @@ function InputArea({ addHistory }) {
 
     // Add user message to chat history
     const userMessage = {
+      conversationId: conversationId,
       message: input,
       role: "user",
       idx: Date.now(),
@@ -62,38 +63,14 @@ function InputArea({ addHistory }) {
     // Generate and add bot response
     const botMsg = botResponse();
     const aiMessage = {
+      conversationId: conversationId,
       message: botMsg,
-      role: "bot",
+      role: "assistant",
       idx: Date.now() + 1,
       side: "left",
     };
     addMessage(addHistory, aiMessage);
     // addHistory(aiMessage);
-
-    // axios
-    // .post("http://localhost:23456/text/generate/", {
-    //   user_id: "YZK43",
-    //   conversation_id: "room1",
-    //   user_query: input,
-    //   message_id: 0,
-    //   temperature: 0.2,
-    //   max_new_tokens: 1024,
-    // })
-    // .then((response) => {
-    //   console.log(response);
-    //   const botMsg = response.data.text;
-    //   const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
-
-    //   addHistory(aiMessage);
-
-    // })
-    // .catch((error) => {
-    //   console.log(error);
-    //   const botMsg = botResponse();
-    //   const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
-
-    //   addHistory(aiMessage);
-    // });
 
     // Clear input field
     setInput("");
