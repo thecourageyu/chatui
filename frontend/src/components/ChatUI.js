@@ -210,6 +210,7 @@ function ChatUI() {
 
       {/* Right side for message view */}
       <div style={{ flex: 1, padding: "10px", background: "#fff" }}>
+        <h6>{selectedConversationId}</h6>
         <MessageContainer messages={history}></MessageContainer>
 
         {/* <form className="msger-inputarea"> */}

@@ -22,9 +22,9 @@ async function addMessage(addHistory, message) {
   const payload = {
     collectionName: "ChatMessage",
     data: {
-      conversation_id: message.conversationId,
-      message_id: message.idx,
-      user_id: "yzk",
+      conversationId: message.conversationId,
+      messageId: message.idx,
+      user: "yzk",
       role: message.role,
       message: message.message,
       side: message.side,
