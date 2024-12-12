@@ -18,6 +18,46 @@ function botResponse() {
   return msgText;
 }
 
+const axios = require('axios'); // Only needed in Node.js; not required in a browser
+
+// Define the OpenAI API URL and key
+const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+const API_KEY = "your-openai-api-key";
+
+// Function to call OpenAI API using Axios
+async function callOpenAI() {
+    try {
+        const response = await axios.post(
+            OPENAI_API_URL,
+            {
+                model: "gpt-3.5-turbo", // Specify the model
+                messages: [
+                    { role: "system", content: "You are a helpful assistant." },
+                    { role: "user", content: "Tell me a joke." }
+                ],
+                max_tokens: 100, // Limit the response length
+                temperature: 0.7, // Adjust creativity
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        // Handle the response
+        console.log("Response from OpenAI:", response.data.choices[0].message.content);
+    } catch (error) {
+        console.error("Error calling OpenAI API:", error.response?.data || error.message);
+    }
+}
+
+// Call the function
+callOpenAI();
+
+
+
 async function addMessage(addHistory, message) {
   const payload = {
     collectionName: "ChatMessage",
@@ -69,6 +109,34 @@ function InputArea({ addHistory, conversationId }) {
       idx: Date.now() + 1,
       side: "left",
     };
+
+
+    axios
+    .post("http://localhost:23456/text/generate/", {
+      user_id: "YZK43",
+      conversation_id: "room1",
+      user_query: input,
+      message_id: 0,
+      temperature: 0.2,
+      max_new_tokens: 1024,
+    })
+    .then((response) => {
+      console.log(response);
+      const botMsg = response.data.text;
+      const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
+
+      addHistory(aiMessage);
+
+    })
+    .catch((error) => {
+      console.log(error);
+      const botMsg = botResponse();
+      const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
+
+      addHistory(aiMessage);
+    });
+
+
     addMessage(addHistory, aiMessage);
     // addHistory(aiMessage);
 
@@ -85,7 +153,7 @@ function InputArea({ addHistory, conversationId }) {
         value={input}
         onChange={(e) => setInput(e.target.value)}
       />
-      <button type="submit" className="msger-send-btn">
+      <button type="submit" disabled={conversationId === -1 ? true : false} className="msger-send-btn">
         Send
       </button>
     </form>

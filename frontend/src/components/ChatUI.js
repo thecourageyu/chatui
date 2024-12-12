@@ -108,6 +108,8 @@ function ChatUI() {
     const convList = findData(setConversationList, "ConversationList", {}, null)
     if (selectedConversationId !== -1) {
       const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+    } else {
+      setHistory([]);
     }
 
 
@@ -171,7 +173,8 @@ function ChatUI() {
 
   function handleSwitchConversation(id) {
     setSelectedConversationId(id);
-    const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+    // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+    const msg = getMessages(setHistory, "ChatMessage", { conversationId: id }, null);
   };
 
   return (
@@ -210,7 +213,7 @@ function ChatUI() {
 
       {/* Right side for message view */}
       <div style={{ flex: 1, padding: "10px", background: "#fff" }}>
-        <h6>{selectedConversationId}</h6>
+        <h3>chat message: {selectedConversationId}</h3>
         <MessageContainer messages={history}></MessageContainer>
 
         {/* <form className="msger-inputarea"> */}
