@@ -64,6 +64,8 @@ services:
             count: all
 #            device_ids: ["0"]
             capabilities: ["gpu"]
+    networks:
+      - chatuinet
 
   chatui:
     
@@ -76,8 +78,8 @@ services:
     container_name: yzk_chatui
     #environment:
     volumes:
-      # - "C:\\\\Users\\\\yuzhe\\\\projects\\\\:/work/YZKMSI"
-      - "I:\\\\ReactNode\\\\chatui:/work/YuPiPC"
+      - "C:\\\\Users\\\\yuzhe\\\\projects\\\\:/work/YZKMSI"
+      # - "I:\\\\ReactNode\\\\chatui:/work/YuPiPC"
 
     # command: ./start.sh
     command: tail -f /dev/null
@@ -101,9 +103,11 @@ services:
       - chatuinet
 
 networks:
+
   chatuinet:
     name:
       chatuinet
     driver:
       bridge
+      # host
   

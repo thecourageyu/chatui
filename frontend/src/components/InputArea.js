@@ -18,43 +18,61 @@ function botResponse() {
   return msgText;
 }
 
-const axios = require('axios'); // Only needed in Node.js; not required in a browser
+// const axios = require('axios'); // Only needed in Node.js; not required in a browser
 
 // Define the OpenAI API URL and key
-const OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
+// const OPENAI_API_URL = "https://vllm:8000/v1/chat/completions";
+// const OPENAI_API_URL = "/llm/v1/chat/completions";
+const OPENAI_API_URL = "/v1/chat/completions";
+
 const API_KEY = "your-openai-api-key";
 
 // Function to call OpenAI API using Axios
-async function callOpenAI() {
+async function callOpenAI(addHistory, conversationId, msg) {
     try {
-        const response = await axios.post(
-            OPENAI_API_URL,
-            {
-                model: "gpt-3.5-turbo", // Specify the model
-                messages: [
-                    { role: "system", content: "You are a helpful assistant." },
-                    { role: "user", content: "Tell me a joke." }
-                ],
-                max_tokens: 100, // Limit the response length
-                temperature: 0.7, // Adjust creativity
-            },
-            {
-                headers: {
-                    "Authorization": `Bearer ${API_KEY}`,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
+      const response = await axios.post(
+          OPENAI_API_URL,
+          {
+              // model: "/models/Llama-3.2-3B-Instruct", // Specify the model
+              model: "/models/Llama-3.2-1B-Instruct", // Specify the model
 
-        // Handle the response
-        console.log("Response from OpenAI:", response.data.choices[0].message.content);
+              messages: [
+                  { role: "system", content: "You are a helpful assistant." },
+                  { role: "user", content: msg }
+              ],
+              max_tokens: 512, // Limit the response length
+              temperature: 0.7, // Adjust creativity
+          },
+          {
+              headers: {
+                  "Authorization": `Bearer ${API_KEY}`,
+                  "Content-Type": "application/json"
+              }
+          }
+      );
+
+      const botMsg = response.data.choices[0].message.content;
+
+      // Handle the response
+      console.log("Response from OpenAI:", response.data.choices[0].message.content);
+       
+      const aiMessage = {
+        conversationId: conversationId,
+        message: botMsg,
+        role: "assistant",
+        idx: Date.now() + 1,
+        side: "left",
+      };
+
+      addMessage(addHistory, aiMessage);
+
     } catch (error) {
-        console.error("Error calling OpenAI API:", error.response?.data || error.message);
+      console.error("Error calling OpenAI API:", error.response?.data || error.message);
     }
 }
 
 // Call the function
-callOpenAI();
+// callOpenAI();
 
 
 
@@ -72,6 +90,8 @@ async function addMessage(addHistory, message) {
   };
   try {
     const response = await axios.post("/add", payload);
+    // const response = await axios.post("/mongodb/add", payload);
+
     addHistory(message);
     console.log("Add Response:", response.data);
   } catch (error) {
@@ -101,44 +121,22 @@ function InputArea({ addHistory, conversationId }) {
     // addHistory(userMessage);
 
     // Generate and add bot response
-    const botMsg = botResponse();
-    const aiMessage = {
-      conversationId: conversationId,
-      message: botMsg,
-      role: "assistant",
-      idx: Date.now() + 1,
-      side: "left",
-    };
+
+    callOpenAI(addHistory, conversationId, input);
+    
+    // const botMsg = botResponse();
+
+    // const aiMessage = {
+    //   conversationId: conversationId,
+    //   message: botMsg,
+    //   role: "assistant",
+    //   idx: Date.now() + 1,
+    //   side: "left",
+    // };
 
 
-    axios
-    .post("http://localhost:23456/text/generate/", {
-      user_id: "YZK43",
-      conversation_id: "room1",
-      user_query: input,
-      message_id: 0,
-      temperature: 0.2,
-      max_new_tokens: 1024,
-    })
-    .then((response) => {
-      console.log(response);
-      const botMsg = response.data.text;
-      const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
 
-      addHistory(aiMessage);
-
-    })
-    .catch((error) => {
-      console.log(error);
-      const botMsg = botResponse();
-      const aiMessage = { message: botMsg, role: "bot", idx: Date.now() + 1, side: "left" };
-
-      addHistory(aiMessage);
-    });
-
-
-    addMessage(addHistory, aiMessage);
-    // addHistory(aiMessage);
+    // addMessage(addHistory, aiMessage);
 
     // Clear input field
     setInput("");

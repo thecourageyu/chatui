@@ -16,6 +16,8 @@ async function addData(payload) {
 
   try {
     const response = await axios.post("/add", payload);
+    // const response = await axios.post("/mongodb/add", payload);
+
     console.log("Add Response:", response.data);
   } catch (error) {
     console.error(
@@ -37,6 +39,7 @@ export async function getMessages(setHistory, collectionName, query, limit) {
     console.log("Get params:", params);
 
     const response = await axios.get('/messages', {
+    // const response = await axios.get('/mongodb/messages', {
       params
     });
 
@@ -63,6 +66,7 @@ export async function findData(setSomething, collectionName, query, limit) {
     console.log("Get params:", params);
 
     const response = await axios.get('/find', {
+    // const response = await axios.get('/mongodb/find', {
       params
     });
     console.log('Request URL:', response.config.url);
@@ -84,6 +88,7 @@ async function deleteData(collectionName, query) {
   const payload = { collectionName: collectionName, query: query }
   try {
     const response = await axios.delete('/delete', {
+    // const response = await axios.delete('/mongodb/delete', {
       data: payload,
     });
     console.log("Drop Response:", response.data);

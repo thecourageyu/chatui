@@ -5,7 +5,8 @@ export HF_DATASETS_CACHE="/work/models/huggingface/datasets"
 export TRANSFORMERS_CACHE="/work/models/huggingface/models"
 
 USER_NAME="meta-llama"
-MODEL_NAME="Llama-3.2-3B-Instruct"
+# MODEL_NAME="Llama-3.2-3B-Instruct"
+MODEL_NAME="Llama-3.2-1B-Instruct"
 
 # WORK_DIR="/home/foxconnhy/yzk/models"
 WORK_DIR="./"
