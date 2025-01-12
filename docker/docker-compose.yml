@@ -4,13 +4,14 @@ services:
     image: mongo
     # restart: always
     container_name: yzk_mongo
+    network_mode: host
     ports:
       - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root123
-    networks:
-      - chatuinet
+      #    networks:
+            #      - chatuinet
 
   mongo-express:
     # basicAuth credentials are "admin:pass", it is recommended you change this in your config.js!
@@ -25,8 +26,8 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: root123
       ME_CONFIG_MONGODB_URL: mongodb://root:root123@mongo:27017/
       # ME_CONFIG_MONGODB_URL: mongodb://root:root123@127.0.0.1:27017/
-    networks:
-      - chatuinet
+      #    networks:
+#      - chatuinet
 
   vllm:
           #image: vllm/vllm-openai:latest
@@ -38,8 +39,8 @@ services:
       - 8716:8000
     volumes:
       
-      # - /home/yu-zhe/Desktop/models:/models
-      - C:\Users\yuzhe\projects\chatui\models:/models
+      - /home/yu-zhe/Desktop/models:/models
+        #- C:\Users\yuzhe\projects\chatui\models:/models
         #- vllm-data:/workspace/.cache/huggingface
     # networks:
     #   - yzk-network
@@ -64,8 +65,8 @@ services:
             count: all
 #            device_ids: ["0"]
             capabilities: ["gpu"]
-    networks:
-      - chatuinet
+            #    networks:
+            #      - chatuinet
 
   chatui:
     
@@ -78,10 +79,11 @@ services:
     container_name: yzk_chatui
     #environment:
     volumes:
-      - "C:\\\\Users\\\\yuzhe\\\\projects\\\\:/work/YZKMSI"
+      #- "C:\\\\Users\\\\yuzhe\\\\projects\\\\:/work/YZKMSI"
       # - "I:\\\\ReactNode\\\\chatui:/work/YuPiPC"
-
+      - "/home/yu-zhe/Desktop/HH/tmp/chatui:/work/chatui"                                               
     # command: ./start.sh
+    network_mode: host
     command: tail -f /dev/null
 #      - "C:\\Users\\yuzhe\\projects\\HH:/work"
       # - "logs:/var/log"
@@ -99,15 +101,19 @@ services:
 #               count: all
 # #              device_ids: ["0", "1"]
 #               capabilities: ["gpu"]
-    networks:
-      - chatuinet
+#    networks:
+#      - chatuinet
 
-networks:
+#networks:
 
-  chatuinet:
-    name:
-      chatuinet
-    driver:
-      bridge
-      # host
-  
+#  chatuinet:
+#    name:
+#      chatuinet
+#    driver:
+#      bridge
+
+        #  host:
+        #    name:
+        #      host
+        #    external:
+        #      true 

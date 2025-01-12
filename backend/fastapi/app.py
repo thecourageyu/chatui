@@ -1,4 +1,6 @@
 import json
+import requests
+
 from fastapi import FastAPI, Response, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,6 +9,10 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
 
 import numpy as np
+
+# BASE_URL = "http://localhost:9191/tod/ebus/test"
+BASE_URL = "http://localhost:9191/tod/ebus/test"
+
 
 class APIRequest(BaseModel):
     history: str = "empty"
@@ -18,12 +24,13 @@ class APIRequest(BaseModel):
     max_new_tokens: int = 1024
 
 
-
 app = FastAPI()
 
 @app.post("/text/generate")
 def text_generation(request: APIRequest): 
 
+    print(request)
+    print(request.json())
     
     BOT_MSGS = [
         "Hi, how are you?",
@@ -32,13 +39,22 @@ def text_generation(request: APIRequest):
         "Sorry if my answers are not relevant. :))",
         "I feel sleepy! :("
     ]
-
-    final_result = {
-        "text": np.random.choice(BOT_MSGS),
-        "begin_task": True,
-        "tod_intent": json.dumps({"user_intent": "test_api", "tracking_state": {"k1": [1, 2, 3], "k2": [9, 8, 7]}}),
-        "tod_summary": json.dumps({"summary": "you are my heart"}),
-    }
+    
+    
+    
+    try:
+        final_result = requests.post(BASE_URL, data=request.json()).json()
+        # final_result = requests.post(BASE_URL, json=request.json()).json()
+        print(final_result)
+    except Exception as err_msg:
+    
+        final_result = {
+            # "text": np.random.choice(BOT_MSGS),
+            "text": f"[ERR] something went wrong call yzk!\n{err_msg}",
+            "begin_task": True,
+            "tod_intent": json.dumps({"user_intent": "test_api", "tracking_state": {"k1": [1, 2, 3], "k2": [9, 8, 7]}}),
+            "tod_summary": json.dumps({"summary": "you are my heart"}),
+        }
     
     ### return array
 #     return JSONResponse(content=jsonable_encoder([response]))  # get data in python => response.body.decode() 

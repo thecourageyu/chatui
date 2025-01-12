@@ -23,6 +23,7 @@ function botResponse() {
 // Define the OpenAI API URL and key
 // const OPENAI_API_URL = "https://vllm:8000/v1/chat/completions";
 // const OPENAI_API_URL = "/llm/v1/chat/completions";
+const FASTAPI_URL = "http://localhost:23456/text/generate";
 const OPENAI_API_URL = "/v1/chat/completions";
 
 const API_KEY = "your-openai-api-key";
@@ -74,6 +75,61 @@ async function callOpenAI(addHistory, conversationId, msg) {
 // Call the function
 // callOpenAI();
 
+async function callFastAPI(addHistory, conversationId, msg) {
+
+  // Example JavaScript code to send a POST request to a Python API
+  // const data = {
+  //   name: "John Doe",
+  //   age: 30
+  // };
+  
+  const data = {
+    history: "empty",
+    user_id: "yzk",
+    conversation_id: conversationId.toString(),
+    user_query: msg,
+    message_id: 0,
+    temperature: 0.2,
+    max_new_tokens: 1024
+  };
+
+  
+  fetch(FASTAPI_URL, { // Replace with your Python API URL
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json", // Ensure the server knows the data format
+    },
+    body: JSON.stringify(data), // Convert the object to a JSON string
+  })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        // const botMsg = response.data.choices[0].message.content;
+        
+  
+        return response.json(); // Parse JSON response
+        
+  
+    })
+    .then(data => {
+          const botMsg = JSON.stringify(data);
+          console.log("Success:", botMsg); // Handle the API response
+
+          const aiMessage = {
+              conversationId: conversationId,
+              message: botMsg,
+              role: "assistant",
+              idx: Date.now() + 1,
+              side: "left",
+          };
+        addMessage(addHistory, aiMessage);
+    })
+    .catch(error => {
+
+        console.error("Error:", error); // Handle errors
+    });
+};
 
 
 async function addMessage(addHistory, message) {
@@ -102,6 +158,9 @@ async function addMessage(addHistory, message) {
   }
 }
 
+
+
+
 function InputArea({ addHistory, conversationId }) {
   const [input, setInput] = useState("");
 
@@ -122,8 +181,9 @@ function InputArea({ addHistory, conversationId }) {
 
     // Generate and add bot response
 
-    callOpenAI(addHistory, conversationId, input);
-    
+    // callOpenAI(addHistory, conversationId, input);
+    callFastAPI(addHistory, conversationId, input);
+
     // const botMsg = botResponse();
 
     // const aiMessage = {
