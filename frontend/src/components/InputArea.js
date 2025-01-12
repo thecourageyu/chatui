@@ -23,7 +23,8 @@ function botResponse() {
 // Define the OpenAI API URL and key
 // const OPENAI_API_URL = "https://vllm:8000/v1/chat/completions";
 // const OPENAI_API_URL = "/llm/v1/chat/completions";
-const FASTAPI_URL = "http://localhost:23456/text/generate";
+// const FASTAPI_URL = "http://localhost:23456/text/generate";
+const FASTAPI_URL = "http://10.39.72.43:23456/text/generate";
 const OPENAI_API_URL = "/v1/chat/completions";
 
 const API_KEY = "your-openai-api-key";
