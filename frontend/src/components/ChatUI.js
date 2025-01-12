@@ -39,7 +39,7 @@ export async function getMessages(setHistory, collectionName, query, limit) {
     console.log("Get params:", params);
 
     const response = await axios.get('/messages', {
-    // const response = await axios.get('/mongodb/messages', {
+      // const response = await axios.get('/mongodb/messages', {
       params
     });
 
@@ -66,7 +66,7 @@ export async function findData(setSomething, collectionName, query, limit) {
     console.log("Get params:", params);
 
     const response = await axios.get('/find', {
-    // const response = await axios.get('/mongodb/find', {
+      // const response = await axios.get('/mongodb/find', {
       params
     });
     console.log('Request URL:', response.config.url);
@@ -88,7 +88,7 @@ async function deleteData(collectionName, query) {
   const payload = { collectionName: collectionName, query: query }
   try {
     const response = await axios.delete('/delete', {
-    // const response = await axios.delete('/mongodb/delete', {
+      // const response = await axios.delete('/mongodb/delete', {
       data: payload,
     });
     console.log("Drop Response:", response.data);
@@ -97,6 +97,20 @@ async function deleteData(collectionName, query) {
   }
 }
 
+
+async function deleteDataMany(collectionName, query) {
+  // const payload = { collectionName: "Conversation", query: { conversation_id: "test01" } }
+  const payload = { collectionName: collectionName, query: query }
+  try {
+    const response = await axios.delete('/deleteMany', {
+      // const response = await axios.delete('/mongodb/delete', {
+      data: payload,
+    });
+    console.log("Drop Response:", response.data);
+  } catch (error) {
+    console.error("Drop Error:", error.response ? error.response.data : error.message);
+  }
+}
 
 function ChatUI() {
 
@@ -146,20 +160,25 @@ function ChatUI() {
       data: newConversation,
     };
     addData(payload);
+    // getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+    // setHistory(history);
+    setHistory([]);
 
-    const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
   };
 
   // Delete a conversation
   const deleteConversation = (id) => {
     deleteData("ConversationList", { id: id })
-    deleteData("ChatMessage", { conversationId: id})
+    deleteDataMany("ChatMessage", { conversationId: { $eq: id } })
     const updatedConversationList = conversationList.filter((conv) => conv.id !== id);
     setConversationList(updatedConversationList);
     if (id === selectedConversationId && updatedConversationList.length) {
       setSelectedConversationId(updatedConversationList[0].id);
+      getMessages(setHistory, "ChatMessage", { conversationId: updatedConversationList[0].id }, null);
+      // setHistory(history);
     } else if (!updatedConversationList.length) {
       setSelectedConversationId(null);
+      setHistory([]);
     }
   };
 
@@ -223,7 +242,7 @@ function ChatUI() {
 
         {/* <form className="msger-inputarea"> */}
 
-        <InputArea addHistory={addHistory} conversationId={selectedConversationId}/>
+        <InputArea addHistory={addHistory} conversationId={selectedConversationId} />
       </div>
       {/* </form> */}
     </div>

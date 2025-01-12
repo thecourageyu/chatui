@@ -161,6 +161,33 @@ app.delete("/delete", async (request, response) => {
 
 
 
+app.delete("/deleteMany", async (request, response) => {
+    try {
+        const {collectionName, query} = request.body;
+
+        if (!collectionName) {
+            return response.status(400).json({ error: "Collection name is required." });
+        }
+
+        const collection = db.collection(collectionName);
+
+        // Filter for the document to delete
+        const filter = query; // Replace with your criteria
+        // const filter = { age: { $eq: 25 } };
+
+        // Delete the document
+        const result = await collection.deleteMany(filter);
+
+        if (result.deletedCount === 1) {
+            response.status(200).json({ message: "Successfully deleted one document." } );
+        } else {
+            response.status(200).json({ message: "No document matched the query. Deleted 0 documents." } );
+        }
+    } catch (error) {
+        response.status(500).json({ error: `Error deleting document: ${error}` });
+    } 
+});
+
 // Start the server and connect to MongoDB
 app.listen(port, "0.0.0.0", async () => {
     console.log(`Server running at http://localhost:${port}`);
