@@ -8,6 +8,8 @@ import { Timestamp } from "mongodb";
 // 2. Use the .mjs Extension
 // 3. node --input-type=module main.js
 
+const MONGO_PORT = 27018
+
 // Add data
 async function addMessage() {
 
@@ -23,7 +25,7 @@ async function addMessage() {
         }
     };
     try {
-        const response = await axios.post('http://localhost:27018/add', payload);
+        const response = await axios.post(`http://localhost:${MONGO_PORT}/add`, payload);
         console.log("Add Response:", response.data);
     } catch (error) {
         console.error("Add Error:", error.response ? error.response.data : error.message);
@@ -38,7 +40,7 @@ async function addData(collectionName, data) {
         data: data,
     };
     try {
-        const response = await axios.post('http://localhost:27018/add', payload);
+        const response = await axios.post(`http://localhost:${MONGO_PORT}/add`, payload);
         console.log("Add Response:", response.data);
     } catch (error) {
         console.error("Add Error:", error.response ? error.response.data : error.message);
@@ -56,7 +58,7 @@ export async function findData(collectionName, query, limit) {
         };
         console.log("Get params:", params);
 
-        const response = await axios.get('http://localhost:27018/find', {
+        const response = await axios.get(`http://localhost:${MONGO_PORT}/find`, {
             params
         });
         console.log('Request URL:', response.config.url);
@@ -64,7 +66,7 @@ export async function findData(collectionName, query, limit) {
         console.log("Get Response:", response.data);
         console.log(`response.data.message (defined by yzk): ${response.data.message}`)
         // console.log(`response.data.message (defined by yzk): ${JSON.parse(response.data.data).toISOString}`)
-        console.log(`response.data.message (defined by yzk): ${response.data.data}`)
+        console.log(`response.data.data (defined by yzk): ${response.data.data}`)
 
     } catch (error) {
         console.error("Get Error:", error.response ? error.response.data : error.message);
@@ -73,10 +75,12 @@ export async function findData(collectionName, query, limit) {
 
 
 // Drop collection
-async function dropCollection() {
-    const payload = { collectionName: "ConversationList" }
+async function dropCollection(collectionName, query) {
+    // const payload = { collectionName: "ConversationList" }
+    const payload = { collectionName: collectionName, query: query }
+
     try {
-        const response = await axios.delete('http://localhost:27018/drop', {
+        const response = await axios.delete(`http://localhost:${MONGO_PORT}/drop`, {
             data: payload,
 
         });
@@ -91,13 +95,13 @@ async function deleteData(collectionName, query) {
     // const payload = { collectionName: "Conversation", query: { conversation_id: "test01" } }
     const payload = { collectionName: collectionName, query: query }
     try {
-        const response = await axios.delete('http://localhost:27018/delete', {
+        const response = await axios.delete(`http://localhost:${MONGO_PORT}/delete`, {
             data: payload,
 
         });
-        console.log("Drop Response:", response.data);
+        console.log("Delete Response:", response.data);
     } catch (error) {
-        console.error("Drop Error:", error.response ? error.response.data : error.message);
+        console.error("Delete Error:", error.response ? error.response.data : error.message);
     }
 }
 
@@ -111,7 +115,10 @@ const now = new Date();
     await addData("Message", { conversation_id: "conversation01", user_id: "yzk", message: "how are you?", timestamp: now.toISOString() });
     
     await findData("Conversation", { conversation_id: "conversation01" }, 10);
-    await findData("Message", {}, 10);
-    await dropCollection();
-    await deleteData();
+    await findData("ChatMessage", { conversationId: 2}, 10);
+    // await findData("Message", {}, 10);
+    // await dropCollection();
+    await dropCollection("Conversation", { conversation_id: "conversation01" });
+    await dropCollection("ChatMessage", { conversationId: 2 });
+
 })();

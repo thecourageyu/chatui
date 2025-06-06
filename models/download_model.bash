@@ -4,14 +4,15 @@ export HF_HOME="/work/models/huggingface"
 export HF_DATASETS_CACHE="/work/models/huggingface/datasets"
 export TRANSFORMERS_CACHE="/work/models/huggingface/models"
 
-USER_NAME="meta-llama"
+
+USER_NAME=google
+MODEL_NAME=gemma-3-1b-it
+# USER_NAME="meta-llama"
 # MODEL_NAME="Llama-3.2-3B-Instruct"
-MODEL_NAME="Llama-3.2-1B-Instruct"
+# MODEL_NAME="Llama-3.2-1B-Instruct"
 
 # WORK_DIR="/home/foxconnhy/yzk/models"
 WORK_DIR="./"
-
-
 
 export GIT_LFS_SKIP_SMUDGE=1
 

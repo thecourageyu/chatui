@@ -1,45 +1,98 @@
-# 使用官方的 Python 3.11 基礎映像
-FROM python:slim
+# RUN rm -rf node_modules package-lock.json && \
+#     npm install
 
-# 安裝基本工具和 Node.js (包含 npm)
+# Base image with Python and Node.js
+FROM node:20-bullseye
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Python, pip, PostgreSQL dependencies, and OpenSSH
 RUN apt-get update && \
-    apt-get install -y curl gnupg openssl nginx && \
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y --no-install-recommends python3 python3-pip python3-venv \
+        build-essential libpq-dev postgresql-client openssh-server \
+        curl git gnupg openssl nginx vim sudo supervisor && \
+    rm -rf /var/lib/apt/lists/* && \
+    mkdir /var/run/sshd
 
-# 驗證 Python 和 Node.js 版本
-RUN python3 --version && node --version && npm --version
+# 安裝 locales 並產生 en_US.UTF-8
+RUN apt-get update && \
+    apt-get install -y locales && \
+    echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+    locale-gen && \
+    update-locale LANG=en_US.UTF-8
 
-# 建立應用目錄
-WORKDIR /app
+# 設定環境變數
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+    
+ARG SSH_USER
+ARG SSH_PASSWORD
+ENV SSH_USER=${SSH_USER}
+ENV SSH_PASSWORD=${SSH_PASSWORD}
 
-# 安裝 Python 套件管理工具 pip 及 Virtualenv
-# RUN pip install --upgrade pip && \
-#     pip install virtualenv
+RUN useradd -ms /bin/bash ${SSH_USER} && \
+    echo "${SSH_USER}:${SSH_PASSWORD}" | chpasswd && \
+    adduser ${SSH_USER} sudo
 
-# 設置 Virtualenv 環境
-# RUN python -m virtualenv venv
-# ENV PATH="/app/venv/bin:$PATH"
+RUN sed -i 's/^#PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+RUN sed -i 's/^#PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-# 安裝 Django
-# RUN pip install django
-COPY requirements.txt /tmp/requirements.txt
+ARG WORK_DIR
+ARG PYTHON_VENV
+ENV WORK_DIR=${WORK_DIR}
+ENV PYTHON_VENV=${PYTHON_VENV}
+#ENV PYTHON_VENV="datas"
+#ENV WORK_DIR=/app
+
+# Set up working directory
+WORKDIR ${WORK_DIR}
+
 RUN pip install --upgrade pip && \
+    pip install virtualenv
+
+RUN python3 -m virtualenv ${WORK_DIR}/${PYTHON_VENV}
+ENV PATH="${WORK_DIR}/${PYTHON_VENV}/bin:$PATH"
+
+# Automatically activate venv on login
+RUN echo "source ${WORK_DIR}/${PYTHON_VENV}/bin/activate" >> /root/.bashrc
+RUN echo "source ${WORK_DIR}/${PYTHON_VENV}/bin/activate" >> /home/${SSH_USER}/.bashrc
+
+COPY requirements.txt /tmp/requirements.txt
+#COPY ./docker/requirements.txt /tmp/requirements.txt
+
+# RUN pip install --upgrade pip && \
+#     pip install -r /tmp/requirements.txt
+
+# Copy backend requirements and install
+# COPY backend/requirements.txt ./backend/requirements.txt
+# RUN ${WORK_DIR}/venv/bin/python3 -m pip install --upgrade pip && \
+#     ${WORK_DIR}/app/venv/bin/pip3 install -r /tmp/requirements.txt
+
+RUN python3 -m pip install --upgrade pip && \
     pip install -r /tmp/requirements.txt
+            
+# Install frontend dependencies and build React with Tailwind (Vite)
+# WORKDIR /app/frontend
+# COPY frontend/package.json frontend/package-lock.json ./
+# RUN npm install
+# COPY frontend .
+# RUN npm run build
 
-# 安裝 React 相關的工具
-RUN npm install -g create-react-app
+# COPY connectors ${WORK_DIR}/connectors
+# COPY logs.py ${WORK_DIR}/logs.py
+# COPY crawl.py ${WORK_DIR}/crawl.py
+# COPY scheduler.py ${WORK_DIR}/scheduler.py
+# COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# 設置 Nginx 配置
-COPY nginx.conf /etc/nginx/nginx.conf
+# Expose ports: 8000 for FastAPI, 3000 for React dev, 22 for SSH
+EXPOSE 9997 3000 22
 
-# 建立一個啟動腳本，啟動 Django 和 Nginx
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+# Final working directory
+# WORKDIR /app/backend
 
-# 對外開放的端口（Nginx 使用默認的 80 端口）
-EXPOSE 80
-
-# 預設執行啟動腳本
-# CMD ["/start.sh"]
+# Default command starts SSH and FastAPI
+# CMD service ssh start && uvicorn main:app --host 0.0.0.0 --port 8000
+# CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/usr/bin/supervisord"]

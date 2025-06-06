@@ -4,9 +4,10 @@ import "./MessageContainer.css"; // Assuming CSS is stored in the same folder
 const MessageContainer = ({ messages }) => {
   return (
     <div className="message-container">
-      {messages.map((message) => (
+      {messages.map((message, idx) => (
         <div
-          key={message.idx}
+          // key={message.idx}
+          key={idx}
           className={`message ${message.role === "user" ? "user-message" : "bot-message"}`}
         >
           <div className="message-text">{message.message}</div>

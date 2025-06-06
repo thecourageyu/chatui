@@ -5,3 +5,10 @@ fastapi
 numpy
 pydantic
 uvicorn
+
+# Advanced Python Scheduler
+apscheduler
+
+# Jupyter
+jupyter
+ipykernel 

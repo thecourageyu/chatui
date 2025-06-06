@@ -1,0 +1,15 @@
+.login-page5 {
+  --login-bg: #080710;
+  --login-inner-bg: white;
+  --login-color: #fff;
+  --login-input: #fff;
+  --login-input-bg: rgb(55 55 62);
+  --login-inner-before: linear-gradient(#1845ad, #23a2f6);
+  --login-inner-after: linear-gradient(to right, #ff512f, #f09819);
+  --login-btn: #fff;
+  --login-btn-bg: rgba(255, 255, 255, 0.07);
+  --login-btn-focus: transition;
+  --login-btn-hover: #1845ad;
+  --login-btn-active: #f09819;
+  --login-footer: #ffffff99;
+}
