@@ -4,14 +4,13 @@ services:
     image: mongo
     # restart: always
     container_name: yzkmongo
-    network_mode: host
     ports:
       - 27017:27017
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root123
-      #    networks:
-            #      - chatuinet
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - chatuinet
 
   mongo-express:
     # basicAuth credentials are "admin:pass", it is recommended you change this in your config.js!
@@ -22,49 +21,48 @@ services:
             #- 8081:8081
       - 8081:8081
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: root123
-      ME_CONFIG_MONGODB_URL: mongodb://root:root123@mongo:27017/
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${ME_CONFIG_MONGODB_ADMINUSERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${ME_CONFIG_MONGODB_ADMINPASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongo:27017/
       # ME_CONFIG_MONGODB_URL: mongodb://root:root123@127.0.0.1:27017/
-      #    networks:
-#      - chatuinet
+    # network_mode: host
+    networks:
+      - chatuinet
 
-  vllm:
-    image: vllm/vllm-openai:latest
-    # image: vllm/vllm-openai
-    container_name: yzkvllm
-    # restart: always
-    shm_size: '8gb'
-    ports:
-      - 8716:8000
-    volumes:
-      
-      # - /home/yu-zhe/Desktop/models:/models
-      - C:\Users\yuzhe\projects\chatui\models:/models
-        #- vllm-data:/workspace/.cache/huggingface
-#    environment:
-#      - VLLM_ATTENTION_BACKEND=${VLLM_ATTENTION_BACKEND}
-    entrypoint: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
-    command: 
-      --port=8000 --host=0.0.0.0 --enable-auto-tool-choice --tool-call-parser llama3_json --chat-template examples/tool_chat_template_llama3.2_json.jinja --tensor-parallel-size=1 --max-model-len=2048 --gpu-memory-utilization=0.95 ${VLLM_ARGS}
-    #--port=8000 --host=0.0.0.0 ${VLLM_ARGS}
-      #    environment:
-      #      - NCCL_IGNORE_DISABLED_P2P=1
-#    healthcheck:
-#      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8000/v1/models" ]
-#      interval: 180s
-#      timeout: 5s
-#     retries: 3
-    deploy:
-      resources:
-        reservations:
-          devices:
-          - driver: nvidia
-            count: all
-#            device_ids: ["0"]
-            capabilities: ["gpu"]
-            #    networks:
-            #      - chatuinet
+#   vllm:
+#     image: vllm/vllm-openai:latest
+#     container_name: yzkvllm
+#     # restart: always
+#     shm_size: '8gb'
+#     ports:
+#       - 8716:8000
+#     volumes:
+#       # - /home/yu-zhe/Desktop/models:/models
+#       - C:\Users\yuzhe\projects\chatui\models:/models
+#         #- vllm-data:/workspace/.cache/huggingface
+# #    environment:
+# #      - VLLM_ATTENTION_BACKEND=${VLLM_ATTENTION_BACKEND}
+#     entrypoint: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+#     command: 
+#       --port=8000 --host=0.0.0.0 --enable-auto-tool-choice --tool-call-parser llama3_json --chat-template examples/tool_chat_template_llama3.2_json.jinja --tensor-parallel-size=1 --max-model-len=2048 --gpu-memory-utilization=0.95 ${VLLM_ARGS}
+#     #--port=8000 --host=0.0.0.0 ${VLLM_ARGS}
+#       #    environment:
+#       #      - NCCL_IGNORE_DISABLED_P2P=1
+# #    healthcheck:
+# #      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8000/v1/models" ]
+# #      interval: 180s
+# #      timeout: 5s
+# #     retries: 3
+#     deploy:
+#       resources:
+#         reservations:
+#           devices:
+#           - driver: nvidia
+#             count: all
+# #            device_ids: ["0"]
+#             capabilities: ["gpu"]
+#             #    networks:
+#             #      - chatuinet
 
   chatui:    
     build:
@@ -79,32 +77,29 @@ services:
           JWT_SECRET: ${SSH_PASSWORD}
     image: chatui:latest
     container_name: yzkchatui
-    #restart: always
-    volumes:
-      #- "C:\\\\Users\\\\yuzhe\\\\projects\\\\:/work/YZKMSI"
-      # - "I:\\\\ReactNode\\\\chatui:/work/YuPiPC"
-      - "/home/yu-zhe/Desktop/HH/tmp/chatui:/work/chatui"                                               
-    network_mode: host
+    #restart: always                                          
     ports:
-      - "9997:9997"
+      # - "9997:9997"
       - "3000:3000"
-      - "9922:22"
+      - "33322:22"
     environment:
       TZ: ${TZ}
     volumes:
-      - "C:\\Users\\yuzhe\\projects\\:/work/YZKMSI"
-      # - "I:\\\\ReactNode\\\\chatui:/work/YuPiPC"
+      #- "C:\\Users\\yuzhe\\projects\\:/work/YZKMSI"
+      - "I:\\ReactNode\\chatui:/work/YuPiPC"
+      #- "/home/yu-zhe/Desktop/HH/tmp/chatui:/work/chatui"     
     # command: tail -f /dev/null
-    #    networks:
-    #      - chatuinet
+    # network_mode: host
+    networks:
+      - chatuinet
 
-#networks:
+networks:
 
-#  chatuinet:
-#    name:
-#      chatuinet
-#    driver:
-#      bridge
+ chatuinet:
+   name:
+     chatuinet
+   driver:
+     bridge
 
         #  host:
         #    name:
