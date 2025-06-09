@@ -203,10 +203,7 @@ const tools = [
 // Function to call OpenAI API using Axios
 async function callOpenAI(addHistory, conversationId, msg) {
 
-      
     console.log("msg (input of callOpenAI): ", msg);
-  
-
 
     try {
       const response = await axios.post(
@@ -264,13 +261,66 @@ async function callOpenAI(addHistory, conversationId, msg) {
       addMessage(addHistory, aiMessage);
 
     } catch (error) {
-      console.error("Error calling OpenAI API:", error.response?.data || error.message);
+      console.log("Error calling OpenAI API:", error.response?.data || error.message);
     }
 }
 
 // Call the function
 // callOpenAI();
 
+async function callfastapi(addHistory, conversationId, msg) {
+  try {
+    // axios.post(url, {user_query: "how are you?"}).then((resolve, reject) => {console.log(resolve.data.text)});
+
+    // const response = await axios.post(
+    //     "http://localhost:23456/text/generate",
+    //     {
+
+    //       user_query: msg,
+
+    //     },
+    //     {
+    //       headers: {
+    //           "Authorization": `Bearer ${API_KEY}`,
+    //           "Content-Type": "application/json"
+    //       }
+    //     }
+    // );
+  
+    // const botMsg = response.data.text;
+    const botMsg = 'GOGOG';
+
+    // const funcname = response.data.choices[0].message.tool_calls[0].function.name 
+    // const funcargs = JSON.parse(response.data.choices[0].message.tool_calls[0].function.arguments).contacts;
+    // const botMsg = `content: ${content}; funcname: ${funcname}; funcargs: ${funcargs}`
+
+  
+
+    // console.log("Check response from openai api: ", response);
+    // if (response.data.choices[0].message.tool_calls.length > 0) {
+      
+    //   const botMsg = response.data.choices[0].message.content + response.data.choices[0].message.tool_calls[0].function;
+    // } else {
+    //   const botMsg = response.data.choices[0].message.content;
+    // }
+
+
+    // Handle the response
+    // console.log("Response from OpenAI:", response.data);
+       
+    const aiMessage = {
+      conversationId: conversationId,
+      message: botMsg,
+      role: "assistant",
+      idx: Date.now() + 1,
+      side: "left",
+    };
+
+    addMessage(addHistory, aiMessage);
+  } catch(error) {
+    console.log("[ERR] calling fast API:", error.response?.data || error.message);
+  }
+}
 
 
 async function addMessage(addHistory, message) {
@@ -343,7 +393,8 @@ function InputArea({ addHistory, conversationId }) {
         console.log("History: ", chat_msg);
 
         // callOpenAI(addHistory, conversationId, input);
-        callOpenAI(addHistory, conversationId, chat_msg);
+        // callOpenAI(addHistory, conversationId, chat_msg);
+        callfastapi(addHistory, conversationId, "chat_msg");
       })
       .catch(err => {
         console.log(`callOpenAI execution failed!\n${err}`);
