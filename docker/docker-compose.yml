@@ -29,40 +29,52 @@ services:
     networks:
       - chatuinet
 
-#   vllm:
-#     image: vllm/vllm-openai:latest
-#     container_name: yzkvllm
-#     # restart: always
-#     shm_size: '8gb'
-#     ports:
-#       - 8716:8000
-#     volumes:
-#       # - /home/yu-zhe/Desktop/models:/models
-#       - C:\Users\yuzhe\projects\chatui\models:/models
-#         #- vllm-data:/workspace/.cache/huggingface
-# #    environment:
-# #      - VLLM_ATTENTION_BACKEND=${VLLM_ATTENTION_BACKEND}
-#     entrypoint: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
-#     command: 
-#       --port=8000 --host=0.0.0.0 --enable-auto-tool-choice --tool-call-parser llama3_json --chat-template examples/tool_chat_template_llama3.2_json.jinja --tensor-parallel-size=1 --max-model-len=2048 --gpu-memory-utilization=0.95 ${VLLM_ARGS}
-#     #--port=8000 --host=0.0.0.0 ${VLLM_ARGS}
-#       #    environment:
-#       #      - NCCL_IGNORE_DISABLED_P2P=1
-# #    healthcheck:
-# #      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8000/v1/models" ]
-# #      interval: 180s
-# #      timeout: 5s
-# #     retries: 3
-#     deploy:
-#       resources:
-#         reservations:
-#           devices:
-#           - driver: nvidia
-#             count: all
-# #            device_ids: ["0"]
-#             capabilities: ["gpu"]
-#             #    networks:
-#             #      - chatuinet
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: yzkvllm
+    # restart: always
+    shm_size: '8gb'
+    ports:
+      - 8716:8000
+    environment:
+      - MODEL_PATH: ${MODEL_PATH}
+      - TOKENIZER_PATH: ${TOKENIZER_PATH}
+      #      - NCCL_IGNORE_DISABLED_P2P=1
+    volumes:
+      # - /home/yu-zhe/Desktop/models:/models
+      - C:\Users\yuzhe\projects\chatui\models:/models
+        #- vllm-data:/workspace/.cache/huggingface
+#    environment:
+#      - VLLM_ATTENTION_BACKEND=${VLLM_ATTENTION_BACKEND}
+    entrypoint: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+    command: >
+      --model ${MODEL_PATH} 
+      --tokenizer ${TOKENIZER_PATH}
+      --port 8000 
+      --host 0.0.0.0 
+      --enable-auto-tool-choice 
+      --tool-call-parser llama3_json 
+      --chat-template examples/tool_chat_template_llama3.2_json.jinja 
+      --tensor-parallel-size 1 
+      --max-model-len 2048 
+      --gpu-memory-utilization 0.95
+    # --port=8000 --host=0.0.0.0 --enable-auto-tool-choice --tool-call-parser llama3_json --chat-template examples/tool_chat_template_llama3.2_json.jinja --tensor-parallel-size=1 --max-model-len=2048 --gpu-memory-utilization=0.95 ${VLLM_ARGS}
+
+#    healthcheck:
+#      test: [ "CMD", "curl", "-f", "http://0.0.0.0:8000/v1/models" ]
+#      interval: 180s
+#      timeout: 5s
+#     retries: 3
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: all
+#            device_ids: ["0"]
+            capabilities: ["gpu"]
+    networks:
+      - chatuinet
 
   chatui:    
     build:

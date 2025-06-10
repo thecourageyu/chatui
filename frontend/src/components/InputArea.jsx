@@ -265,45 +265,47 @@ async function callOpenAI(addHistory, conversationId, msg) {
     }
 }
 
-// Call the function
-// callOpenAI();
+async function callFastAPI(addHistory, conversationId, msg) {
 
-async function callfastapi(addHistory, conversationId, msg) {
-  try {
-    // axios.post(url, {user_query: "how are you?"}).then((resolve, reject) => {console.log(resolve.data.text)});
+  // axios.post(url, {user_query: "how are you?"}).then((resolve, reject) => {console.log(resolve.data.text)});
+  // const url = "http://localhost:23456/text/generate";
 
-    // const response = await axios.post(
-    //     "http://localhost:23456/text/generate",
-    //     {
-
-    //       user_query: msg,
-
-    //     },
-    //     {
-    //       headers: {
-    //           "Authorization": `Bearer ${API_KEY}`,
-    //           "Content-Type": "application/json"
-    //       }
-    //     }
-    // );
+  // The API "http://host.docker.internal:9991/chat" can be called from within the container using the terminal, 
+  // but it cannot be accessed from the web service running inside the same container—it only results in a timeout error.
+  //
+  // host.docker.internal is a special DNS name only usable from inside Docker containers.
+  // It does not work from a browser, which is running outside Docker (i.e., your host OS).
+  // When your browser hits http://host.docker.internal:9991, it cannot resolve the address or connect — hence timeout.
+  // 
+  // Fix: Use http://localhost:9991 in browser
+  const url = "http://localhost:9991/chat";  // access DGX API by local port forwarding from within a Docker container 
+  const payload = {
+    messages: msg,
+    temperature: 0.7,
+    max_tokens: 2048
+  };
   
+  try {
+    const response = await axios.post(
+      url,
+      payload,
+      {
+        headers: {
+            // "Authorization": `Bearer ${API_KEY}`,
+            "Content-Type": "application/json"
+        }
+      }
+    );
+    console.log("Check response from fastapi: ", response);
+    const botMsg = response.data.response;
     // const botMsg = response.data.text;
-    const botMsg = 'GOGOG';
+    // const botMsg = 'GOGOG';
 
     // const funcname = response.data.choices[0].message.tool_calls[0].function.name 
     // const funcargs = JSON.parse(response.data.choices[0].message.tool_calls[0].function.arguments).contacts;
     // const botMsg = `content: ${content}; funcname: ${funcname}; funcargs: ${funcargs}`
 
-  
-
-    // console.log("Check response from openai api: ", response);
-    // if (response.data.choices[0].message.tool_calls.length > 0) {
-      
-    //   const botMsg = response.data.choices[0].message.content + response.data.choices[0].message.tool_calls[0].function;
-    // } else {
-    //   const botMsg = response.data.choices[0].message.content;
-    // }
-
+    console.log("Check response from fastapi: ", response);
 
     // Handle the response
     // console.log("Response from OpenAI:", response.data);
@@ -367,6 +369,18 @@ function InputArea({ addHistory, conversationId }) {
     addMessage(addHistory, userMessage);
     // addHistory(userMessage);
   
+    const system_prompt = `你是一個智能規劃助理，能理解用戶的複雜需求並自動規劃任務流程。  
+你的任務是將用戶的自然語言問題，逐步拆解為邏輯明確的子任務。
+
+請遵守以下原則：
+
+1. 將複雜問題拆解為明確的子任務。
+2. 將每一步的輸出視為後續步驟的輸入，直到任務完成。
+
+請使用以下格式進行輸出：
+plan_1<hhev_split>plan_2<hhev_split>plan_3
+
+請保持條理清晰、步驟合理。"`;
     const collectionName = 'ChatMessage';
     const limit = 20;
 
@@ -383,7 +397,7 @@ function InputArea({ addHistory, conversationId }) {
         console.log(">>> mongo_response: ", mongo_response);
         const hist_msg = mongo_response.data.data;
         console.log(">>> History Msg: ", mongo_response.data);
-        const chat_msg = [];
+        const chat_msg = [{role: "system", content: system_prompt}];
         for (let i = 0; i < hist_msg.length; i++) {
           chat_msg.push({role: hist_msg[i].role, content: hist_msg[i].message});
         }
@@ -394,7 +408,7 @@ function InputArea({ addHistory, conversationId }) {
 
         // callOpenAI(addHistory, conversationId, input);
         // callOpenAI(addHistory, conversationId, chat_msg);
-        callfastapi(addHistory, conversationId, "chat_msg");
+        callFastAPI(addHistory, conversationId, chat_msg);
       })
       .catch(err => {
         console.log(`callOpenAI execution failed!\n${err}`);

@@ -2,9 +2,8 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
 
-
-import InputArea from "./InputArea";
 import axios from "axios";
+import InputArea from "./InputArea";
 import MessageContainer from "./MessageContainer";
 import { FaMessage } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
@@ -119,11 +118,14 @@ async function dropData(collectionName, query) {
 }
 
 
-function ChatUI() {
+function ChatUI(user) {
+  //  collections in mongodb
+  //    1. ConversationList
+  //    2. ChatMessage
 
-  const [conversationList, setConversationList] = useState([])
-  const [selectedConversationId, setSelectedConversationId] = useState(-1)
-  const [history, setHistory] = useState([])
+  const [conversationList, setConversationList] = useState([]);
+  const [selectedConversationId, setSelectedConversationId] = useState(-1);
+  const [history, setHistory] = useState([]);
 
   // useEffect(() => {
   //   const convList = findData(setConversationList, "ConversationList", {}, null)
@@ -176,8 +178,8 @@ function ChatUI() {
   // Delete a conversation
   const deleteConversation = (id) => {
     deleteData("ConversationList", { id: id })
-    deleteData("ChatMessage", { conversationId: id})
-    // dropData("ChatMessage", { conversationId: id})
+    // deleteData("ChatMessage", { conversationId: id})
+    dropData("ChatMessage", { conversationId: id})
     const updatedConversationList = conversationList.filter((conv) => conv.id !== id);
     setConversationList(updatedConversationList);
     if (id === selectedConversationId && updatedConversationList.length) {
@@ -186,19 +188,6 @@ function ChatUI() {
       setSelectedConversationId(null);
     }
   };
-
-  // // Get the selected conversation
-  // const selectedConversation = conversationList.find(
-  //   (conv) => conv.id === selectedConversationId
-  // );
-
-
-  const convListArgs = {
-    addConversation: addConversation,
-    deleteConversation: deleteConversation,
-    setSelectedConversationId: setSelectedConversationId,
-    conversationList: conversationList
-  }
 
   function handleSwitchConversation(id) {
     setSelectedConversationId(id);
@@ -211,9 +200,9 @@ function ChatUI() {
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Left sidebar */}
       <div style={{ width: "25%", background: "#f0f0f0", padding: "10px" }}>
+        {/* Add Conversation */}
         <button onClick={() => addConversation()} title={"Add Conversation"} style={{ marginBottom: "1px" }}>
           <FaMessage />
-          {/* Add Conversation */}
         </button>
         {conversationList.map((conv) => (
           <div
@@ -228,6 +217,7 @@ function ChatUI() {
             onClick={() => handleSwitchConversation(conv.id)}
           >
             {conv.title}
+            {/* Delete */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -236,7 +226,6 @@ function ChatUI() {
               style={{ float: "right" }}
             >
               <FaTrash />
-              {/* Delete */}
             </button>
           </div>
         ))}
@@ -245,10 +234,8 @@ function ChatUI() {
       {/* Right side for message view */}
       <div style={{ flex: 1, padding: "10px", background: "#fff" }}>
         <h3>chat message: {selectedConversationId}</h3>
-        <MessageContainer messages={history}></MessageContainer>
-
+        <MessageContainer messages={history}/>
         {/* <form className="msger-inputarea"> */}
-
         <InputArea addHistory={addHistory} conversationId={selectedConversationId}/>
       </div>
       {/* </form> */}
