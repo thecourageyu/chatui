@@ -1,5 +1,6 @@
 import json
 import requests
+from typing import List
 
 from fastapi import FastAPI, Response, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -24,14 +25,19 @@ class APIRequest(BaseModel):
     max_new_tokens: int = 1024
 
 
+class ChatMessage(BaseModel):
+    role: str 
+    content: str
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage] 
+    temperature: float = 0.7
+    max_tokens: int = 512
+
 app = FastAPI()
 
-@app.post("/text/generate")
-def text_generation(request: APIRequest): 
-
-    print(request)
-    print(request.json())
-    
+@app.post("/chat")
+def chat(chat_request: ChatRequest):
     BOT_MSGS = [
         "Hi, how are you?",
         "Ohh... I can't understand what you trying to say. Sorry!",
@@ -40,7 +46,15 @@ def text_generation(request: APIRequest):
         "I feel sleepy! :("
     ]
     
-    
+    return JSONResponse(content=jsonable_encoder({"response": np.random.choice(BOT_MSGS)}))
+
+
+
+@app.post("/text/generate")
+def text_generation(request: APIRequest): 
+
+    print(request)
+    print(request.json())
     
     try:
         final_result = requests.post(BASE_URL, data=request.json()).json()
@@ -49,7 +63,6 @@ def text_generation(request: APIRequest):
     except Exception as err_msg:
     
         final_result = {
-            # "text": np.random.choice(BOT_MSGS),
             "text": f"[ERR] something went wrong call yzk!\n{err_msg}",
             "begin_task": True,
             "tod_intent": json.dumps({"user_intent": "test_api", "tracking_state": {"k1": [1, 2, 3], "k2": [9, 8, 7]}}),
@@ -75,8 +88,7 @@ app.add_middleware(
 if __name__ == "__main__":
     import uvicorn
 
-    # uvicorn.run(app, host="0.0.0.0", port=8080)
-    uvicorn.run(app, host="0.0.0.0", port=23456)
+    uvicorn.run(app, host="0.0.0.0", port=9991)
     #uvicorn.run(app, host=app_config["api"]["host"], port=app_config["api"]["port"])
 
     import sys

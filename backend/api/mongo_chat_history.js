@@ -70,7 +70,9 @@ app.get('/messages', async (req, res) => {
             res.status(200).json({ message: "Data retrieved successfully!", data: results });
 
         } else {
-            const results = await collection.find(JSON.parse(query)).limit(Number(limit)).toArray();
+            // const results = await collection.find(JSON.parse(query)).limit(Number(limit)).toArray();
+
+            const results = await collection.find(JSON.parse(query)).skip(collection.count() - limit).toArray();
             res.status(200).json({ message: "Data retrieved successfully!", data: results });
 
         }

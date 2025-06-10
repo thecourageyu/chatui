@@ -361,6 +361,7 @@ function InputArea({ addHistory, conversationId }) {
     // Add user message to chat history
     const userMessage = {
       conversationId: conversationId,
+      // userId: userId,
       message: input,
       role: "user",
       idx: Date.now(),

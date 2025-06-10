@@ -236,7 +236,9 @@ function ChatUI(user) {
         <h3>chat message: {selectedConversationId}</h3>
         <MessageContainer messages={history}/>
         {/* <form className="msger-inputarea"> */}
+        {/* <InputArea addHistory={addHistory} conversationId={selectedConversationId} userId={user}/> */}
         <InputArea addHistory={addHistory} conversationId={selectedConversationId}/>
+
       </div>
       {/* </form> */}
     </div>
