@@ -20,8 +20,6 @@ async function addData(payload) {
 
   try {
     const response = await axios.post(`${MONGO_PROXY_PATH}/add`, payload);
-    // const response = await axios.post("/mongodb/add", payload);
-
     console.log("Add Response:", response.data);
   } catch (error) {
     console.error(
@@ -123,13 +121,9 @@ function ChatUI(user) {
   //    1. ConversationList
   //    2. ChatMessage
 
-  const [conversationList, setConversationList] = useState([]);
-  const [selectedConversationId, setSelectedConversationId] = useState(-1);
-  const [history, setHistory] = useState([]);
-
-  // useEffect(() => {
-  //   const convList = findData(setConversationList, "ConversationList", {}, null)
-  // }, []);
+  const [conversationList, setConversationList] = useState([]);  // save conversation list
+  const [selectedConversationId, setSelectedConversationId] = useState(-1);  // set selected conversation
+  const [history, setHistory] = useState([]);  // set the history to correspond to the selected conversation
 
   useEffect(() => {
     console.log(`current selectedConversationId: ${selectedConversationId}`)
@@ -139,11 +133,8 @@ function ChatUI(user) {
     } else {
       setHistory([]);
     }
-
-
     // fetchMessages();
   }, []);
-
 
 
   // Function to add a new message to the message history
@@ -151,14 +142,12 @@ function ChatUI(user) {
     setHistory((prevMessages) => [...prevMessages, newMessage]);
   };
 
-
   // Add a new conversation
   const addConversation = () => {
     const newId = conversationList.length ? conversationList[conversationList.length - 1].id + 1 : 1;
     const now = new Date();
     // const newConversation = { id: newId, title: `Conversation ${newId} (${now})`, createTime: now }
     const newConversation = { id: newId, title: `Conversation ${newId}`, createTime: now }
-
 
     setConversationList([
       ...conversationList,
@@ -236,9 +225,7 @@ function ChatUI(user) {
         <h3>chat message: {selectedConversationId}</h3>
         <MessageContainer messages={history}/>
         {/* <form className="msger-inputarea"> */}
-        {/* <InputArea addHistory={addHistory} conversationId={selectedConversationId} userId={user}/> */}
         <InputArea addHistory={addHistory} conversationId={selectedConversationId}/>
-
       </div>
       {/* </form> */}
     </div>

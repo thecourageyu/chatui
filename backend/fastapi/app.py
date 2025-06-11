@@ -24,20 +24,21 @@ class APIRequest(BaseModel):
     temperature: float = 0.2
     max_new_tokens: int = 1024
 
-
-class ChatMessage(BaseModel):
-    role: str 
+# Define request structure
+class Message(BaseModel):
+    role: str
     content: str
 
-class ChatRequest(BaseModel):
-    messages: list[ChatMessage] 
+class ChatPayload(BaseModel):
+    messages: list[Message]
     temperature: float = 0.7
     max_tokens: int = 512
 
 app = FastAPI()
 
 @app.post("/chat")
-def chat(chat_request: ChatRequest):
+async def chat(payload: ChatPayload):
+    # Convert messages to a single prompt
     BOT_MSGS = [
         "Hi, how are you?",
         "Ohh... I can't understand what you trying to say. Sorry!",
@@ -46,8 +47,11 @@ def chat(chat_request: ChatRequest):
         "I feel sleepy! :("
     ]
     
-    return JSONResponse(content=jsonable_encoder({"response": np.random.choice(BOT_MSGS)}))
-
+    # return JSONResponse(content=jsonable_encoder({"response": np.random.choice(BOT_MSGS)}))
+    return {
+        "response": np.random.choice(BOT_MSGS), 
+        "prompt": payload
+    }
 
 
 @app.post("/text/generate")

@@ -354,6 +354,10 @@ async function addMessage(addHistory, message) {
 function InputArea({ addHistory, conversationId }) {
   const [input, setInput] = useState("");
 
+  const collectionName = 'ChatMessage';
+  const limit = 20;  // Tracking conversation turns
+
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -370,20 +374,18 @@ function InputArea({ addHistory, conversationId }) {
     addMessage(addHistory, userMessage);
     // addHistory(userMessage);
   
-    const system_prompt = `你是一個智能規劃助理，能理解用戶的複雜需求並自動規劃任務流程。  
-你的任務是將用戶的自然語言問題，逐步拆解為邏輯明確的子任務。
-
-請遵守以下原則：
-
-1. 將複雜問題拆解為明確的子任務。
-2. 將每一步的輸出視為後續步驟的輸入，直到任務完成。
-
-請使用以下格式進行輸出：
-plan_1<hhev_split>plan_2<hhev_split>plan_3
-
-請保持條理清晰、步驟合理。"`;
-    const collectionName = 'ChatMessage';
-    const limit = 20;
+    const system_prompt = `你是一個智能規劃助理，能理解用戶的複雜需求並自動規劃任務流程。\n
+你的任務是將用戶的自然語言問題，逐步拆解為邏輯明確的子任務。\n
+\n
+請遵守以下原則：\n
+\n
+1. 將複雜問題拆解為明確的子任務。\n
+2. 將每一步的輸出視為後續步驟的輸入，直到任務完成。\n
+\n
+請使用以下格式進行輸出：\n
+plan_1<hhev_split>plan_2<hhev_split>plan_3\n
+\n
+請保持條理清晰、步驟合理。`;
 
     const payload = {
       collectionName: collectionName,
