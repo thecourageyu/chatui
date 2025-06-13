@@ -3,8 +3,10 @@ import React, { useEffect } from "react";
 import { useState } from "react";
 
 import axios from "axios";
+import Dropdown from "./Dropdown";
 import InputArea from "./InputArea";
 import MessageContainer from "./MessageContainer";
+
 import { FaMessage } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { BiMessageRoundedAdd } from "react-icons/bi";
@@ -121,9 +123,16 @@ function ChatUI(user) {
   //    1. ConversationList
   //    2. ChatMessage
 
+  const [selectedEndpoint, setSelectedEndpoint] = useState("");
   const [conversationList, setConversationList] = useState([]);  // save conversation list
   const [selectedConversationId, setSelectedConversationId] = useState(-1);  // set selected conversation
   const [history, setHistory] = useState([]);  // set the history to correspond to the selected conversation
+
+  
+
+  const handleDropDownChange = (event) => {
+    setSelectedEndpoint(event.target.value);
+  };
 
   useEffect(() => {
     console.log(`current selectedConversationId: ${selectedConversationId}`)
@@ -188,7 +197,7 @@ function ChatUI(user) {
     // addConversation, deleteConversation, conversationList, setSelectedConversationId
     <div style={{ display: "flex", height: "100vh" }}>
       {/* Left sidebar */}
-      <div style={{ width: "25%", background: "#f0f0f0", padding: "10px" }}>
+      <div style={{ width: "20%", background: "#f0f0f0", padding: "10px" }}>
         {/* Add Conversation */}
         <button onClick={() => addConversation()} title={"Add Conversation"} style={{ marginBottom: "1px" }}>
           <FaMessage />
@@ -222,7 +231,12 @@ function ChatUI(user) {
 
       {/* Right side for message view */}
       <div style={{ flex: 1, padding: "10px", background: "#fff" }}>
-        <h3>chat message: {selectedConversationId}</h3>
+        <div>
+          {/* <h3>chat message: {selectedConversationId}</h3> */}
+          <div>ConversationId: {selectedConversationId}</div> 
+          <div>Endpoint: {selectedEndpoint}</div>
+          <Dropdown selectedOption={selectedEndpoint} handleDropDownChange={handleDropDownChange}/>
+        </div>
         <MessageContainer messages={history}/>
         {/* <form className="msger-inputarea"> */}
         <InputArea addHistory={addHistory} conversationId={selectedConversationId}/>
