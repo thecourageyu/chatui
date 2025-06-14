@@ -32,32 +32,6 @@ async function addData(payload) {
 }
 
 
-export async function getMessages(setHistory, collectionName, query, limit) {
-  try {
-
-    const params = {
-      collectionName: collectionName,
-      query: JSON.stringify(query),
-      limit: limit
-    };
-    console.log("Get params:", params);
-
-    const response = await axios.get(`${MONGO_PROXY_PATH}/messages`, {
-    // const response = await axios.get('/mongodb/messages', {
-      params
-    });
-
-    const msg = response.data.data;
-    setHistory(msg);
-
-    console.log('Request URL:', response.config.url);
-
-    console.log("Get Response:", response.data.data);
-  } catch (error) {
-    console.error("Get Error:", error.response ? error.response.data : error.message);
-  }
-}
-
 
 export async function findData(setSomething, collectionName, query, limit) {
   try {
@@ -118,7 +92,7 @@ async function dropData(collectionName, query) {
 }
 
 
-function ChatUI(user) {
+function ChatUI({ user }) {
   //  collections in mongodb
   //    1. ConversationList
   //    2. ChatMessage
@@ -138,7 +112,9 @@ function ChatUI(user) {
     console.log(`current selectedConversationId: ${selectedConversationId}`)
     const convList = findData(setConversationList, "ConversationList", {}, null)
     if (selectedConversationId !== -1) {
-      const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+      // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+      const msg = findData(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+
     } else {
       setHistory([]);
     }
@@ -170,8 +146,11 @@ function ChatUI(user) {
     };
     addData(payload);
 
-    const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+    // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+    const msg = findData(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+
   };
+
 
   // Delete a conversation
   const deleteConversation = (id) => {
@@ -190,7 +169,7 @@ function ChatUI(user) {
   function handleSwitchConversation(id) {
     setSelectedConversationId(id);
     // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
-    const msg = getMessages(setHistory, "ChatMessage", { conversationId: id }, null);
+    const msg = findData(setHistory, "ChatMessage", { conversationId: id }, null);
   };
 
   return (

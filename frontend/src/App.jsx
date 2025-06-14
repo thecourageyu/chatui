@@ -18,7 +18,7 @@ function App() {
 
         {/* 🔐 Protected Routes */}
         {/* <Route element={<PrivateRoute isAuthenticated={isAuthenticated} />}> */}
-        <Route path="/chat" element={<ChatUI user='YZK'/>} />
+        <Route path="/chat" element={<ChatUI user={'YZK'}/>} />
         {/* </Route> */}
       </Routes>
     </Router>

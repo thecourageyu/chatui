@@ -87,7 +87,7 @@ RUN python3 -m pip install --upgrade pip && \
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Expose ports: 8000 for FastAPI, 3000 for React dev, 22 for SSH
-# EXPOSE 9997 3000 22
+EXPOSE 9997 3000 22
 
 # Final working directory
 # WORKDIR /app/backend
