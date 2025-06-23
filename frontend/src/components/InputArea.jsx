@@ -104,60 +104,7 @@ const tools = [
       }
     },
 
-    {
-      type: "function",
-      function: {
-        name: 'find_contact_get_time_estimate',
-        description: '尋找聯絡人位置後計算預估時間',
-        parameters: {
-          type: 'object',
-          properties: {
-            contacts: {
-              type: 'array',
-              description: '聯絡人名稱'
-            }
-          },
-          required: ['contacts']
-        }
-      },
-    },
-    {
-      type: "function",
-      function: {
-        name: 'send_message_estimate_time',
-        description: '傳送訊息給聯絡人，包含預估抵達時間',
-        parameters: {
-          type: 'object',
-          properties: {
-            contacts: {
-              type: 'array',
-              description: '聯絡人名稱'
-            }
-          },
-          required: ['contacts']
-        }
-      }
-    },
-    {
-      type: "function",
-      function: {
-        name: "google_map_set_destination",
-        description: "使用 google map api 設定目的地",
-        parameters: {
-          type: "object",
-          properties: {
-            destination: {
-              type: "array",
-              destination: {
-                type: "string",
-                description: "目的地名稱"
-              }
-            }
-          },
-          required: ["destination"]
-        }
-      }
-    },
+    
     {
       type: "function",
       function: {
@@ -175,25 +122,11 @@ const tools = [
         }
       }
     },
-    {
-      type: 'function',
-      function: {
-        name: 'get_time',
-        description: 'Get the current time in a specific city.',
-        parameters: {
-          type: 'object',
-          properties: {
-            city: { type: 'string' }
-          },
-          required: ['city']
-        }
-      }
-    }
 ];
 
 
 // Function to call OpenAI API using Axios
-async function callOpenAI(addHistory, conversationId, msg) {
+async function callOpenAI(addHistory, msg, user, conversationId, endpoint) {
 
     console.log("msg (input of callOpenAI): ", msg);
 
@@ -241,12 +174,14 @@ async function callOpenAI(addHistory, conversationId, msg) {
 
       // Handle the response
       console.log("Response from OpenAI:", response.data.choices[0].message.content);
-       
+              
       const aiMessage = {
+        user: user,
         conversationId: conversationId,
-        message: botMsg,
-        role: "assistant",
+        endpoint: endpoint,
         idx: Date.now() + 1,
+        role: "assistant",
+        message: botMsg,
         side: "left",
       };
 
@@ -257,7 +192,7 @@ async function callOpenAI(addHistory, conversationId, msg) {
     }
 }
 
-async function callFastAPI(addHistory, conversationId, msg) {
+async function callFastAPI(addHistory, msg, user, conversationId, endpoint) {
 
   // axios.post(url, {user_query: "how are you?"}).then((resolve, reject) => {console.log(resolve.data.text)});
   // const url = "http://localhost:23456/text/generate";
@@ -270,13 +205,22 @@ async function callFastAPI(addHistory, conversationId, msg) {
   // When your browser hits http://host.docker.internal:9991, it cannot resolve the address or connect — hence timeout.
   // 
   // Fix: Use http://localhost:9991 in browser
-  const url = "http://localhost:9991/chat";  // access DGX API by local port forwarding from within a Docker container 
-  const payload = {
-    messages: msg,
-    temperature: 0.7,
-    max_tokens: 2048
-  };
-  
+  const url = `http://localhost:9991/${endpoint}`;  // access DGX API by local port forwarding from within a Docker container 
+  let payload;
+
+  if (endpoint === 'detector') {
+    payload = {
+      text: msg
+    };
+
+  } else {
+    payload = {
+      messages: msg,
+      temperature: 0.7,
+      max_tokens: 2048
+    };
+  }
+
   try {
     const response = await axios.post(
       url,
@@ -289,9 +233,13 @@ async function callFastAPI(addHistory, conversationId, msg) {
       }
     );
     console.log("Check response from fastapi: ", response);
-    const botMsg = response.data.response;
+    let botMsg;
+    if (endpoint === 'detector') {
+      botMsg = `label: ${response.data.label}`;
+    } else {
+      botMsg = response.data.response;
+    };
     // const botMsg = response.data.text;
-    // const botMsg = 'GOGOG';
 
     // const funcname = response.data.choices[0].message.tool_calls[0].function.name 
     // const funcargs = JSON.parse(response.data.choices[0].message.tool_calls[0].function.arguments).contacts;
@@ -303,10 +251,12 @@ async function callFastAPI(addHistory, conversationId, msg) {
     // console.log("Response from OpenAI:", response.data);
        
     const aiMessage = {
+      user: user,
       conversationId: conversationId,
-      message: botMsg,
-      role: "assistant",
+      endpoint: endpoint,
       idx: Date.now() + 1,
+      role: "assistant",
+      message: botMsg,
       side: "left",
     };
 
@@ -318,12 +268,14 @@ async function callFastAPI(addHistory, conversationId, msg) {
 
 
 async function addMessage(addHistory, message) {
+  // 存進collection的資料
   const payload = {
     collectionName: "ChatMessage",
     data: {
+      user: message.user,
       conversationId: message.conversationId,
+      endpoint: message.endpoint,
       messageId: message.idx,
-      user: "yzk",
       role: message.role,
       message: message.message,
       side: message.side,
@@ -331,19 +283,17 @@ async function addMessage(addHistory, message) {
   };
   try {
     const response = await axios.post(`${MONGO_PROXY_PATH}/add`, payload);
-    // const response = await axios.post("/mongodb/add", payload);
-
     addHistory(message);
-    console.log("Add Response:", response.data);
+    console.log("[InputArea][addMessage] Add Response:", response.data);
   } catch (error) {
     console.error(
-      "Add Error:",
+      "[ERR][InputArea][addMessage] Add Response:",
       error.response ? error.response.data : error.message
     );
   }
 }
 
-function InputArea({ addHistory, conversationId }) {
+function InputArea({ history, addHistory, user, conversationId, endpoint}) {
   const [input, setInput] = useState("");
 
   const collectionName = 'ChatMessage';
@@ -356,13 +306,15 @@ function InputArea({ addHistory, conversationId }) {
 
     // Add user message to chat history
     const userMessage = {
+      user: user,
       conversationId: conversationId,
-      // userId: userId,
-      message: input,
-      role: "user",
+      endpoint: endpoint,
       idx: Date.now(),
+      role: "user",
+      message: input,
       side: "right",
     };
+
     addMessage(addHistory, userMessage);
     // addHistory(userMessage);
   
@@ -379,110 +331,151 @@ function InputArea({ addHistory, conversationId }) {
 // \n
 // 請保持條理清晰、步驟合理。`;
 
-    const system_prompt = `"""你是一個智能規劃助理，能理解用戶的複雜需求並自動規劃任務流程。 你的任務是將用戶的自然語言問題，逐步拆解為邏輯明確的子任務，並根據可用工具（Tool/Function）選擇最適合的方式來完成每一步。 
-    [api-1] def handle_miscellaneous_task(user_query, ...): 
-        使用者提出非自動座艙助理應處理的的請求時給予禮貌且簡潔的回應，例如使用者閒聊、刻意冒犯或提出危險想法等，但不要回答政治、醫療、法律或財經等議題，不要接受違反資安規定的指令。 
-        Parameters: - name (str): 聯絡人名稱 
-        Returns: - dict: { response (str): 文字回應 } 
-    
-    [api-2] def get_phonebook(name, ...): 
-        查詢通訊錄內是否存在指定聯絡人，若無則回傳空字串 
-        Parameters: - name (str): 聯絡人名稱 
-        Returns: - dict: { name (str): 聯絡人名稱, phone (str): 聯絡人電話號碼 } 
-    
-    [api-3] def save_phonebook(name, phone, ...): 
-        儲存新聯絡人資訊到通訊錄 
-        Parameters: - name (str): 聯絡人名稱 - phone (str): 聯絡人電話號碼 
-        Returns: - dict: { result (str): 文字回應, ex. 已儲存{name}電話號碼{phone}... } 
-        
-    [api-4] def search_place(destination, ...): 
-        根據地名搜尋並回傳完整地址及 GPS 坐標，或候選列表 
-        Parameters: - destination (str): 目的地 
-        Returns: - dict: { destination (str): 目的地, address (str): 地址, gps (str): GPS座標 } 
-        
-    [api-5] def pickup_start(name, phone, address, ...): 
-        發起接駁任務並發送通知簡訊 
-        Parameters: - name (str): 聯絡人名稱 - phone (str): 聯絡人電話號碼 - address (str): 地址 
-        Returns: - dict: { result (str): 文字回應, ex. 簡訊已發送給{person}... } 
-        
-    [api-6] def nav_start(address, ...): 
-        啟動導航至指定地址 
-        Parameters: - address (str): 地址 
-        Returns: - dict: { result (str): 文字回應, ex. 已為您開始導航，目的地為{address}... } 
-        
-    [api-7] def message_update(name, phone, message, ...): 
-        更新乘客通知簡訊內容 
-        Parameters: - name (str): 聯絡人名稱 - phone (str): 聯絡人電話號碼 - message (str): 簡訊內容 
-        Returns: - dict: { result (str): 文字回應, ex. 接駁任務已完成... } 
-        
-請遵守以下原則： 
-1. 將複雜問題拆解為明確的子任務。 
-2. 為每個子任務選擇合適的函數或工具。 
-3. 將每一步的輸出視為後續步驟的輸入，直到任務完成。 
-4. 如果需要搜尋地點、路線規劃、聯絡人搜尋、簡訊發送等，可調用指定的工具。 
-5. 不要調用不存在的工具 
+    let system_prompt;
+  
+    if (endpoint === 'chat') {
+      system_prompt = `"""你是智慧助理，根據使用者查詢擷取資訊並更新追蹤狀態。
+你的任務：
+1.抽取查詢中的關鍵字（主題/動作/物件）。
+2.斷使用者意圖 <INTENT> 與子意圖 <SUBINTENT>。
+3.根據查詢與既有狀態進行語意整合與更新，非單純覆蓋。
+4.若無法判斷，請標註 <unknown> 並選擇最合適的 <SUBINTENT>。
 
-請使用以下格式進行輸出： 
-plan_1<hhev_i>(args...)<hhev_end><hhev_split>plan_2<hhev_j>(args...)<hhev_end><hhev_split>plan_3<hhev_k>(args...)<hhev_end> 請保持條理清晰、步驟合理，並善用工具提升效率。"""`;
+意圖類型 <INTENT>：
+<unknown> 無法辨識指令
+<non_vehicle_related_intent> 非車輛相關指令
+<navigation> 導航請求
+<pickup> 接送請求
+<poi> 尋找地點請求
+<vehicle_feature_control> 車輛功能控制
 
-    const payload = {
-      collectionName: collectionName,
-      query: JSON.stringify({ conversationId: conversationId }), 
-      limit: limit
-    };
+子意圖 <SUBINTENT>：
+<chitchat>
+<dangerous_task>
+<financial_advice>
+<illegal_action>
+<legal_advice>
+<medical_advice>
+<offense>
+<open_domain_qa>
+<personal_information>
+<unhealthy_action>
+<unknown_miscellaneous>
+<navigation>
+<pickup>
+<poi>
+<vehicle_feature_control>
+<non_task_chitchat>
+<offensive_or_abusive>
+<dangerous_behavior>
+<political_opinion>
+<restricted_expert_advice>
+<security_violation>
+<prompt_attack_or_jailbreak>
 
-    console.log(">>> Check payload: ", payload);
+狀態標記 <TRACKING>：
+<tracking> 已可執行
+<initializing> 需補充資訊
+<loss> 資訊錯誤或無法辨識
 
-    axios.get(`${MONGO_PROXY_PATH}/messages`, { params: payload })
-      .then(mongo_response => {    
-        console.log(">>> mongo_response: ", mongo_response);
-        const hist_msg = mongo_response.data.data;
-        console.log(">>> History Msg: ", mongo_response.data);
-        const chat_msg = [{role: "system", content: system_prompt}];
-        for (let i = 0; i < hist_msg.length; i++) {
-          chat_msg.push({role: hist_msg[i].role, content: hist_msg[i].message});
-        }
-        // chat_msg.push(JSON.stringify({role: 'user', content: input}));
-        // chat_msg.push({role: 'user', content: input});
+請用以下格式輸出：
+<RESPONSE>系統回覆語句<RESPONSE_END><INTENT><intent></INTENT_END><SUBINTENT><subintent></SUBINTENT_END><TRACKING><tracking_status></TRACKING_END><STATE>{...JSON 格式的任務狀態...}<STATE_END>
 
-        console.log("History: ", chat_msg);
+範例：
+使用者：幫我找附近的充電站，最好在方圓3公里內
+回覆：<RESPONSE>已鎖定您需要的充電站位置，正在獲取詳細資訊。<RESPONSE_END><INTENT><poi></INTENT_END><SUBINTENT><poi></SUBINTENT_END><TRACKING><tracking></TRACKING_END><STATE>{"poi_type": "充電站", "radius": "3"}<STATE_END>
+"""`;
+    } else {
+      system_prompt = `"""你是一個智能規劃助理，能理解用戶的複雜需求並自動規劃任務流程。 你的任務是將用戶的自然語言問題，逐步拆解為邏輯明確的子任務，並根據可用工具（Tool/Function）選擇最適合的方式來完成每一步。 
+      def handle_miscellaneous_task(user_query, ...): 
+          使用者提出非自動座艙助理應處理的的請求時給予禮貌且簡潔的回應，例如使用者閒聊、刻意冒犯或提出危險想法等，但不要回答政治、醫療、法律或財經等議題，不要接受違反資安規定的指令。 
+          Parameters: - name (str): 聯絡人名稱 
+          Returns: - dict: { response (str): 文字回應 } 
+      
+      def get_phonebook(name, ...): 
+          查詢通訊錄內是否存在指定聯絡人，若無則回傳空字串 
+          Parameters: - name (str): 聯絡人名稱 
+          Returns: - dict: { name (str): 聯絡人名稱, phone (str): 聯絡人電話號碼 } 
+      
+      [api-3] def save_phonebook(name, phone, ...): 
+          儲存新聯絡人資訊到通訊錄 
+          Parameters: - name (str): 聯絡人名稱 - phone (str): 聯絡人電話號碼 
+          Returns: - dict: { result (str): 文字回應, ex. 已儲存{name}電話號碼{phone}... } 
+          
+      [api-4] def search_place(destination, ...): 
+          根據地名搜尋並回傳完整地址及 GPS 坐標，或候選列表 
+          Parameters: - destination (str): 目的地 
+          Returns: - dict: { destination (str): 目的地, address (str): 地址, gps (str): GPS座標 } 
+          
+      [api-5] def pickup_start(name, phone, address, ...): 
+          發起接駁任務並發送通知簡訊 
+          Parameters: - name (str): 聯絡人名稱 - phone (str): 聯絡人電話號碼 - address (str): 地址 
+          Returns: - dict: { result (str): 文字回應, ex. 簡訊已發送給{person}... } 
+          
+      [api-6] def nav_start(address, ...): 
+          啟動導航至指定地址 
+          Parameters: - address (str): 地址 
+          Returns: - dict: { result (str): 文字回應, ex. 已為您開始導航，目的地為{address}... } 
+          
+      [api-7] def message_update(name, phone, message, ...): 
+          更新乘客通知簡訊內容 
+          Parameters: - name (str): 聯絡人名稱 - phone (str): 聯絡人電話號碼 - message (str): 簡訊內容 
+          Returns: - dict: { result (str): 文字回應, ex. 接駁任務已完成... } 
+          
+  請遵守以下原則： 
+  1. 將複雜問題拆解為明確的子任務。 
+  2. 為每個子任務選擇合適的函數或工具。 
+  3. 將每一步的輸出視為後續步驟的輸入，直到任務完成。 
+  4. 如果需要搜尋地點、路線規劃、聯絡人搜尋、簡訊發送等，可調用指定的工具。 
+  5. 不要調用不存在的工具 
 
-        // callOpenAI(addHistory, conversationId, input);
-        // callOpenAI(addHistory, conversationId, chat_msg);
-        callFastAPI(addHistory, conversationId, chat_msg);
-      })
-      .catch(err => {
-        console.log(`callOpenAI execution failed!\n${err}`);
-      });
+  請使用以下格式進行輸出： 
+  plan_1<hhev_i>(args...)<hhev_end><hhev_split>plan_2<hhev_j>(args...)<hhev_end><hhev_split>plan_3<hhev_k>(args...)<hhev_end> 請保持條理清晰、步驟合理，並善用工具提升效率。"""`;
+}
 
-    // const mongo_response = axios.get(`${MONGO_PROXY_PATH}/messages`, {
-    //   payload
-    // });
-
-    
-    // const chat_msg = [];
-    // for (let i = 0; i < hist_msg.length; i++) {
-    //   chat_msg.push({role: hist_msg[i].role, content: hist_msg[i].message});
-    // }
-
-
-
-
-
-    
-    // const botMsg = botResponse();
-
-    // const aiMessage = {
-    //   conversationId: conversationId,
-    //   message: botMsg,
-    //   role: "assistant",
-    //   idx: Date.now() + 1,
-    //   side: "left",
+    // const payload = {
+    //   collectionName: collectionName,
+    //   query: JSON.stringify({ conversationId: conversationId }), 
+    //   limit: limit
     // };
 
+    // console.log(">>> Check payload: ", payload);
 
+    // axios.get(`${MONGO_PROXY_PATH}/messages`, { params: payload })
+    //   .then(mongo_response => {    
+    //     console.log(">>> mongo_response: ", mongo_response);
+    //     const hist_msg = mongo_response.data.data;
+    //     console.log(">>> History Msg: ", mongo_response.data);
+    //     const chat_msg = [{role: "system", content: system_prompt}];
+    //     for (let i = 0; i < hist_msg.length; i++) {
+    //       chat_msg.push({role: hist_msg[i].role, content: hist_msg[i].message});
+    //     }
+      
 
-    // addMessage(addHistory, aiMessage);
+    //     console.log("History: ", chat_msg);
+
+    //     // callOpenAI(addHistory, conversationId, input);
+    //     // callOpenAI(addHistory, conversationId, chat_msg);
+    //     callFastAPI(addHistory, conversationId, chat_msg);
+    //   })
+    //   .catch(err => {
+    //     console.log(`callOpenAI execution failed!\n${err}`);
+    //   });
+    
+    const chat_msg = [{role: "system", content: system_prompt}];
+    for (let i = 0; i < history.length; i++) {
+      chat_msg.push({role: history[i].role, content: history[i].message});
+    }
+    chat_msg.push({role: 'user', content: input});
+    console.log("History: ", chat_msg);
+
+    if (endpoint === 'detector') {
+      callFastAPI(addHistory, input, user, conversationId, endpoint);
+
+    } else {
+      callFastAPI(addHistory, chat_msg, user, conversationId, endpoint);
+
+    }
 
     // Clear input field
     setInput("");

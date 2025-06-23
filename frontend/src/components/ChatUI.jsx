@@ -97,23 +97,17 @@ function ChatUI({ user }) {
   //    1. ConversationList
   //    2. ChatMessage
 
-  const [selectedEndpoint, setSelectedEndpoint] = useState("");
+  const [selectedEndpoint, setSelectedEndpoint] = useState("chat");
   const [conversationList, setConversationList] = useState([]);  // save conversation list
   const [selectedConversationId, setSelectedConversationId] = useState(-1);  // set selected conversation
   const [history, setHistory] = useState([]);  // set the history to correspond to the selected conversation
-
-  
-
-  const handleDropDownChange = (event) => {
-    setSelectedEndpoint(event.target.value);
-  };
 
   useEffect(() => {
     console.log(`current selectedConversationId: ${selectedConversationId}`)
     const convList = findData(setConversationList, "ConversationList", {}, null)
     if (selectedConversationId !== -1) {
       // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
-      const msg = findData(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+      const msg = findData(setHistory, "ChatMessage", { user: user, conversationId: selectedConversationId, endpoint: selectedEndpoint }, null);
 
     } else {
       setHistory([]);
@@ -147,7 +141,7 @@ function ChatUI({ user }) {
     addData(payload);
 
     // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
-    const msg = findData(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
+    const msg = findData(setHistory, "ChatMessage", { user: user, conversationId: selectedConversationId, endpoint: selectedEndpoint }, null);
 
   };
 
@@ -169,7 +163,15 @@ function ChatUI({ user }) {
   function handleSwitchConversation(id) {
     setSelectedConversationId(id);
     // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
-    const msg = findData(setHistory, "ChatMessage", { conversationId: id }, null);
+    const msg = findData(setHistory, "ChatMessage", { user: user, conversationId: id, endpoint: selectedEndpoint }, null);
+  };
+
+  
+  const handleDropDownChange = (event) => {
+    
+    setSelectedEndpoint(event.target.value);
+    // selectedEndpoint此時即使重新設置，但還沒辦法調用到
+    const msg = findData(setHistory, "ChatMessage", { user: user, conversationId: selectedConversationId, endpoint: event.target.value }, null);
   };
 
   return (
@@ -218,7 +220,9 @@ function ChatUI({ user }) {
         </div>
         <MessageContainer messages={history}/>
         {/* <form className="msger-inputarea"> */}
-        <InputArea addHistory={addHistory} conversationId={selectedConversationId}/>
+        {/* <InputArea addHistory={addHistory} conversationId={selectedConversationId}/> */}
+        <InputArea history={history} addHistory={addHistory} user={user} conversationId={selectedConversationId} endpoint={selectedEndpoint}/>
+
       </div>
       {/* </form> */}
     </div>

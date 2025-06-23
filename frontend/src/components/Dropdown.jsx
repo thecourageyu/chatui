@@ -13,7 +13,7 @@ function Dropdown({ selectedOption, handleDropDownChange }) {
       <label htmlFor="dropdown">Role: </label>
       <select id="dropdown" value={selectedOption} onChange={handleDropDownChange}>
         <option value="">-- Endpoint --</option>
-        <option value="planner">Planner</option>
+        <option value="chat">Planner</option>
         <option value="detector">CompleteSentenceDetector</option>
         <option value="octopusV2">OctopusV2</option>
       </select>
