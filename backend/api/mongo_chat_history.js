@@ -154,7 +154,8 @@ app.delete("/delete", async (request, response) => {
         const filter = query; // Replace with your criteria
 
         // Delete the document
-        const result = await collection.deleteOne(filter);
+        // const result = await collection.deleteOne(filter);
+        const result = await collection.deleteMany(filter);
 
         if (result.deletedCount === 1) {
             response.status(200).json({ message: "Successfully deleted one document." } );

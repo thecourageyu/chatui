@@ -183,11 +183,17 @@ async function callFastAPI(addHistory, msg, user, conversationId, endpoint) {
       }
     );
     console.log("Check response from fastapi: ", response);
+    
+    // let displayOnScreen;
     let botMsg;
     if (endpoint === 'detector') {
       botMsg = `label: ${response.data.label}`;
+      // displayOnScreen = `label: ${response.data.label}`;
+      // botMsg = "";
     } else {
       botMsg = response.data.response;
+      // displayOnScreen = response.data.response;
+      // botMsg = response.data.chat;
     };
     // const botMsg = response.data.text;
 
@@ -207,6 +213,8 @@ async function callFastAPI(addHistory, msg, user, conversationId, endpoint) {
       idx: Date.now() + 1,
       role: "assistant",
       message: botMsg,
+      // message: displayOnScreen,
+      // chatResponse: botMsg,
       side: "left",
     };
 
@@ -228,10 +236,12 @@ async function addMessage(addHistory, msgObj) {
       messageId: msgObj.idx,
       role: msgObj.role,
       message: msgObj.message,
+      // message: msgObj.chatResponse,
       side: msgObj.side,
     },
   };
   
+  // console.log(`[payload before add] ${payload}`);
   try {
     const response = await axios.post(`${MONGO_PROXY_PATH}/add`, payload);
     

@@ -149,8 +149,8 @@ function ChatUI({ user }) {
   // Delete a conversation
   const deleteConversation = (id) => {
     deleteData("ConversationList", { id: id })
-    // deleteData("ChatMessage", { conversationId: id})
-    dropData("ChatMessage", { conversationId: id})
+    deleteData("ChatMessage", { conversationId: id})
+    // dropData("ChatMessage", { conversationId: id })
     const updatedConversationList = conversationList.filter((conv) => conv.id !== id);
     setConversationList(updatedConversationList);
     if (id === selectedConversationId && updatedConversationList.length) {
