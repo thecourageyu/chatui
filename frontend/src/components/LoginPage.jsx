@@ -1,97 +1,41 @@
-import React from 'react';
-import Login, { Render } from 'react-login-page';
-import Logo from 'react-login-page/logo';
-import "./LoginPage.css";
+// src/LoginPage.jsx
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from './AuthContext';
+import { TextField, Button, Typography, Container, Paper } from '@mui/material';
 
+export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
-// const Demo = () => {
-function Demo1() {
+  const handleLogin = (e) => {
+    e.preventDefault();
 
-  return (
-    <Login className='login-page5'>
-      <Render>
-        {({ fields, buttons, blocks, $$index }) => {
-          return (
-            <div>
-              <header>
-                {blocks.logo} {blocks.title}
-              </header>
-              <div>
-                <label>{fields.username}</label>
-              </div>
-              <div>
-                <label>{fields.password}</label>
-              </div>
-              <div>
-                {buttons.submit}
-                {buttons.reset}
-              </div>
-            </div>
-          );
-        }}
-      </Render>
-      <Login.Block keyname="logo" tagName="span">
-        <Logo />
-      </Login.Block>
-      <Login.Block keyname="title" tagName="span">
-        Login
-      </Login.Block>
-      <Login.Input keyname="username" placeholder="Please input Username" />
-      <Login.Input keyname="password" placeholder="please enter password" />
-      <Login.Button keyname="submit" type="submit">
-        Submit
-      </Login.Button>
-      <Login.Button keyname="reset" type="reset">
-        Reset
-      </Login.Button>
-    </Login>
-  );
-};
-// export default Demo1;
-
-
-// function LoginPage6() {
-function Demo() {  
+    if (email === 'ev' && password === 'ev123') {
+      login({ email }); // ✅ 設定使用者登入狀態
+      // navigate('/dashboard');
+      navigate('/chat');
+    } else {
+      setError('帳號或密碼錯誤');
+    }
+  };
 
   return (
-    <Login>
-      <Render>
-        {({ fields, buttons, blocks, $$index }) => {
-          return (
-            <div>
-              <header>
-                {blocks.logo} {blocks.title}
-              </header>
-              <div>
-                <label>{fields.username}</label>
-              </div>
-              <div>
-                <label>{fields.password}</label>
-              </div>
-              <div>
-                {buttons.submit}
-                {buttons.reset}
-              </div>
-            </div>
-          );
-        }}
-      </Render>
-      <Login.Block keyname="logo" tagName="span">
-        <Logo />
-      </Login.Block>
-      <Login.Block keyname="title" tagName="span">
-        Login
-      </Login.Block>
-      <Login.Input keyname="username" placeholder="Please input Username" />
-      <Login.Input keyname="password" placeholder="please enter password" />
-      <Login.Button keyname="submit" type="submit">
-        Submit
-      </Login.Button>
-      <Login.Button keyname="reset" type="reset">
-        Reset
-      </Login.Button>
-    </Login>
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, mt: 8 }}>
+        <Typography variant="h5" align="center">登入</Typography>
+        <form onSubmit={handleLogin}>
+          <TextField label="Email" fullWidth margin="normal" value={email} onChange={e => setEmail(e.target.value)} />
+          <TextField label="密碼" type="password" fullWidth margin="normal" value={password} onChange={e => setPassword(e.target.value)} />
+          {error && <Typography color="error">{error}</Typography>}
+          <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>登入</Button>
+        </form>
+      </Paper>
+    </Container>
   );
-};
-// export default LoginPage6;
-export default Demo;
+}
+
+// export default LoginPage;

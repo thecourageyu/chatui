@@ -15,17 +15,11 @@ function Dropdown({ selectedOption, handleDropDownChange }) {
         <option value="">-- Endpoint --</option>
         <option value="ev">EV</option> 
         <option value="chat">Chat</option>
-        <option value="chatbot">Chatbot</option>
+        <option value="tods">TODS</option>
+        <option value="compressor">Summarizer</option>
         <option value="planner">Planner</option>
         <option value="detector">CompleteSentenceDetector</option>
-        {/* <option value="octopusV2">OctopusV2</option> */}
       </select>
-
-      {/* {selectedOption && (
-        <p style={{ marginTop: '10px' }}>
-          You selected: <strong>{selectedOption}</strong>
-        </p>
-      )} */}
     </div>
   );
 }

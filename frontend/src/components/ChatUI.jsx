@@ -14,9 +14,6 @@ import { BiMessageRoundedAdd } from "react-icons/bi";
 
 const MONGO_PROXY_PATH = "mongodb"
 
-function getRndInteger(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 async function addData(payload) {
 
@@ -30,7 +27,6 @@ async function addData(payload) {
     );
   }
 }
-
 
 
 export async function findData(setSomething, collectionName, query, limit) {
@@ -62,32 +58,32 @@ export async function findData(setSomething, collectionName, query, limit) {
 
 
 async function deleteData(collectionName, query) {
-  // const payload = { collectionName: "Conversation", query: { conversation_id: "test01" } }
+  // Delete the query data
   const payload = { collectionName: collectionName, query: query }
   try {
     const response = await axios.delete(`${MONGO_PROXY_PATH}/delete`, {
-    // const response = await axios.delete('/mongodb/delete', {
       data: payload,
       // params: payload,
     });
-    console.log("Delete Response:", response.data);
+    logger.log(`Delete Response: ${response.data}`);
   } catch (error) {
-    console.error("Delete Error:", error.response ? error.response.data : error.message);
+    logger.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
+    console.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
   }
 }
 
 async function dropData(collectionName, query) {
-  // const payload = { collectionName: "Conversation", query: { conversation_id: "test01" } }
+  // Drop whole collection
   const payload = { collectionName: collectionName, query: query }
   try {
     const response = await axios.delete(`${MONGO_PROXY_PATH}/drop`, {
-    // const response = await axios.delete('/mongodb/delete', {
       data: payload,
       // params: payload,
     });
-    console.log("Drop Response:", response.data);
+    logger.info(`Drop Response:, ${response.data}`);
   } catch (error) {
-    console.error("Drop Error:", error.response ? error.response.data : error.message);
+    logger.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
+    console.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
   }
 }
 
@@ -96,6 +92,7 @@ function ChatUI({ user }) {
   //  collections in mongodb
   //    1. ConversationList
   //    2. ChatMessage
+  //    3. Login
 
   const [selectedEndpoint, setSelectedEndpoint] = useState("chat");
   const [conversationList, setConversationList] = useState([]);  // save conversation list
@@ -126,7 +123,7 @@ function ChatUI({ user }) {
     const newId = conversationList.length ? conversationList[conversationList.length - 1].id + 1 : 1;
     const now = new Date();
     // const newConversation = { id: newId, title: `Conversation ${newId} (${now})`, createTime: now }
-    const newConversation = { id: newId, title: `Conversation ${newId}`, createTime: now }
+    const newConversation = { user: user, id: newId, title: `Conversation ${newId}`, createTime: now }
 
     setConversationList([
       ...conversationList,
@@ -140,7 +137,6 @@ function ChatUI({ user }) {
     };
     addData(payload);
 
-    // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
     const msg = findData(setHistory, "ChatMessage", { user: user, conversationId: selectedConversationId, endpoint: selectedEndpoint }, null);
 
   };
@@ -148,15 +144,18 @@ function ChatUI({ user }) {
 
   // Delete a conversation
   const deleteConversation = (id) => {
-    deleteData("ConversationList", { id: id })
-    deleteData("ChatMessage", { conversationId: id})
+    deleteData("ConversationList", { user: user, id: id })
+    deleteData("ChatMessage", { user: user, conversationId: id })
     // dropData("ChatMessage", { conversationId: id })
     const updatedConversationList = conversationList.filter((conv) => conv.id !== id);
     setConversationList(updatedConversationList);
     if (id === selectedConversationId && updatedConversationList.length) {
       setSelectedConversationId(updatedConversationList[0].id);
+      findData(setHistory, "ChatMessage", { user: user, conversationId: updatedConversationList[0].id, endpoint: selectedEndpoint }, null);
+
     } else if (!updatedConversationList.length) {
       setSelectedConversationId(null);
+      setHistory([]);
     }
   };
 
@@ -168,7 +167,6 @@ function ChatUI({ user }) {
 
   
   const handleDropDownChange = (event) => {
-    
     setSelectedEndpoint(event.target.value);
     // selectedEndpoint此時即使重新設置，但還沒辦法調用到
     const msg = findData(setHistory, "ChatMessage", { user: user, conversationId: selectedConversationId, endpoint: event.target.value }, null);
@@ -192,11 +190,11 @@ function ChatUI({ user }) {
               background: selectedConversationId === conv.id ? "#ccc" : "#fff",
               cursor: "pointer",
             }}
-            // onClick={() => setSelectedConversationId(conv.id)}
             onClick={() => handleSwitchConversation(conv.id)}
           >
+            {/* Dialogue */}
             {conv.title}
-            {/* Delete */}
+            {/* Delete dialogue*/}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -224,7 +222,7 @@ function ChatUI({ user }) {
         <InputArea history={history} addHistory={addHistory} user={user} conversationId={selectedConversationId} endpoint={selectedEndpoint}/>
 
       </div>
-      {/* </form> */}
+
     </div>
   );
 }

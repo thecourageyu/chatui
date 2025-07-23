@@ -1,38 +1,59 @@
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const express = require('express');
-const fs = require('fs');
-const { MongoClient } = require('mongodb');
+/**
+ * This script initializes the server and handles requests.
+ * It uses Express.js to define endpoints.
+ * 
+ * 
+ * npm install axios body-parser cors express mongodb winston --save
+ * node server.js
+ * curl -X POST http://localhost:27018/add -H "Content-Type: application/json" -d '{"collectionName": "YZK01", "data":{"name": "Alice", "age": 25}}'
+ */
 
-// >>> install packages
-// npm install axios express mongodb body-parser cors --save
-// >>> start the service
-// node server.js
-// >>> add
-// curl -X POST http://localhost:27018/add -H "Content-Type: application/json" -d '{"collectionName": "YZK01", "data":{"name": "Alice", "age": 25}}'
 
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import express from 'express';
+import { readFileSync } from 'fs';
+import { createLogger, format as _format, transports as _transports } from 'winston';
+
+import { MongoClient } from 'mongodb';
+
+const logger = createLogger({
+  level: 'info', // default level
+  format: _format.combine(
+    _format.timestamp(),
+    _format.printf(({ timestamp, level, message }) =>
+      `[${timestamp}] ${level.toUpperCase()}: ${message}`
+    )
+  ),
+  transports: [
+    new _transports.Console(),
+    new _transports.File({ filename: 'logs/app.log' })
+  ],
+});
+
+const port = 27018;  // express port
 const app = express();
-const port = 27018;
 
 // Middleware to parse JSON
 app.use(bodyParser.json());
 app.use(cors());
-// MongoDB connection settings
 
-const credentials = JSON.parse(fs.readFileSync('./etc/credentials.json'));
-const uri = `mongodb://${credentials.username}:${credentials.password}@mongo:27017`;
+// MongoDB connection settings
+const credentials = JSON.parse(readFileSync('./etc/credentials.json'));
+const uri = `mongodb://${credentials.username}:${credentials.password}@mongo:27017`;  // mongo server
 const client = new MongoClient(uri);
 const dbName = "testdb";
 let db;
+
 
 // Connect to MongoDB
 async function connectToDatabase() {
     try {
         await client.connect();
         db = client.db(dbName);
-        console.log(`Connected to database: ${dbName}`);
+        logger.info(`Connected to database: ${dbName}`);
     } catch (error) {
-        console.error("Failed to connect to MongoDB:", error);
+        logger.error(`Failed to connect to MongoDB: ${error}`);
     }
 }
 
@@ -42,52 +63,21 @@ app.post('/add', async (req, res) => {
         const { collectionName, data } = req.body;
 
         if (!collectionName || !data) {
+            logger.error("Collection name and data are required.");
             return res.status(400).json({ error: "[/add] Collection name and data are required." });
         }
 
         const collection = db.collection(collectionName);
         const result = await collection.insertOne(data);
-
+        
+        logger.info({ message: "[/add] Data added successfully!", result });
         res.status(200).json({ message: "[/add] Data added successfully!", result });
     } catch (error) {
-        console.error("[/add] Error adding data:", error);
+        logger.error(`[/add] Error adding data: ${error}`);
         res.status(500).json({ error: "[/add] Failed to add data." });
     }
 });
 
-// Route to get data from a collection
-app.get('/messages', async (req, res) => {
-    try {
-        const { collectionName, query, limit } = req.query;
-
-        if (!collectionName) {
-            return res.status(400).json({ error: "Collection name is required." });
-        }
-
-        const collection = db.collection(collectionName);
-        if (limit == null) {
-            const results = await collection.find(JSON.parse(query)).toArray();
-            res.status(200).json({ message: "Data retrieved successfully!", data: results });
-
-        } else {
-            
-            const results = await collection.find(JSON.parse(query)).limit(Number(limit)).toArray();
-            res.status(200).json({ message: "Data retrieved successfully!", data: results });
-
-            // const results = await collection.find(JSON.parse(query)).toArray();
-            // const sliced_results = results.slice(results.length - Number(limit));
-
-            // const results = await collection.find(JSON.parse(query)).sort({date: 1}).limit(Number(limit)).toArray();
-            // const results = await collection.find(JSON.parse(query)).skip(collection.count() - limit).toArray();
-            // res.status(200).json({ message: "Data retrieved successfully!", data: sliced_results });
-
-        }
-
-    } catch (error) {
-        console.error("Error getting data:", error);
-        res.status(500).json({ error: "Failed to retrieve data." });
-    }
-});
 
 
 // Route to get data from a collection
@@ -117,7 +107,6 @@ app.get('/find', async (req, res) => {
 });
 
 
-// Route to drop a collection
 app.delete('/drop', async (req, res) => {
     try {
         const { collectionName } = req.body;
@@ -171,6 +160,8 @@ app.delete("/delete", async (request, response) => {
 
 // Start the server and connect to MongoDB
 app.listen(port, "0.0.0.0", async () => {
+    logger.info(`Server running at http://localhost:${port}`);
+    // logger.error('Something failed');
     console.log(`Server running at http://localhost:${port}`);
     await connectToDatabase();
 });
