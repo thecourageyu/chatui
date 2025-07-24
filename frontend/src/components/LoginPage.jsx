@@ -11,17 +11,29 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
+    // const ok = login(email, password);
+    const result = await login(email, password);
+    console.log(JSON.stringify(result, null, 2));
 
-    if (email === 'ev' && password === 'ev123') {
-      login({ email }); // ✅ 設定使用者登入狀態
-      // navigate('/dashboard');
+    if (result.success) {
+      console.log('>>> login is ok!')
       navigate('/chat');
     } else {
-      setError('帳號或密碼錯誤');
+      console.log('>>> login is not ok!')
+      setError('帳號或密碼錯誤');  
     }
+
+    // if (email === 'ev' && password === 'ev123') {
+    //   login({ email }); // ✅ 設定使用者登入狀態
+    //   // navigate('/dashboard');
+    //   navigate('/chat');
+    // } else {
+    //   setError('帳號或密碼錯誤');
+    // }
   };
+
 
   return (
     <Container maxWidth="sm">
@@ -39,3 +51,29 @@ export default function LoginPage() {
 }
 
 // export default LoginPage;
+
+// import { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import { useAuth } from './AuthContext';
+
+// export default function LoginPage() {
+//   const { login } = useAuth();
+//   const [email, setEmail] = useState('');
+//   const [password, setPassword] = useState('');
+//   const navigate = useNavigate();
+
+//   const handleSubmit = async (e) => {
+//     e.preventDefault();
+//     await login(email, password);
+//     navigate('/');
+//   };
+
+//   return (
+//     <form onSubmit={handleSubmit}>
+//       <h2>Login</h2>
+//       <input type="email" placeholder="Email" onChange={e => setEmail(e.target.value)} required />
+//       <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} required />
+//       <button type="submit">Login</button>
+//     </form>
+//   );
+// }

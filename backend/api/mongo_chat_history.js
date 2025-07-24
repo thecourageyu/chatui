@@ -40,8 +40,8 @@ app.use(cors());
 
 // MongoDB connection settings
 const credentials = JSON.parse(readFileSync('./etc/credentials.json'));
-const uri = `mongodb://${credentials.username}:${credentials.password}@mongo:27017`;  // mongo server
-const client = new MongoClient(uri);
+const url = `mongodb://${credentials.username}:${credentials.password}@mongo:27017`;  // mongo server
+const client = new MongoClient(url);
 const dbName = "testdb";
 let db;
 

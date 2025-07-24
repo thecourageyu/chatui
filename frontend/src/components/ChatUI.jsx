@@ -10,9 +10,10 @@ import MessageContainer from "./MessageContainer";
 import { FaMessage } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { BiMessageRoundedAdd } from "react-icons/bi";
+import { useAuth } from "./AuthContext";
 
 
-const MONGO_PROXY_PATH = "mongodb"
+const MONGO_PROXY_PATH = "mongodb"  // proxy in setupProxy.js
 
 
 async function addData(payload) {
@@ -65,9 +66,9 @@ async function deleteData(collectionName, query) {
       data: payload,
       // params: payload,
     });
-    logger.log(`Delete Response: ${response.data}`);
+    // logger.log(`Delete Response: ${response.data}`);
   } catch (error) {
-    logger.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
+    // logger.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
     console.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
   }
 }
@@ -88,11 +89,17 @@ async function dropData(collectionName, query) {
 }
 
 
-function ChatUI({ user }) {
+// function ChatUI({ user }) {
+function ChatUI( { user } ) {
   //  collections in mongodb
   //    1. ConversationList
   //    2. ChatMessage
   //    3. Login
+
+  // const { login_user, login, logout } = useAuth()
+  // const user = login_user.name
+  console.log(`[ChatUI] login user: ${user}`);
+
 
   const [selectedEndpoint, setSelectedEndpoint] = useState("chat");
   const [conversationList, setConversationList] = useState([]);  // save conversation list

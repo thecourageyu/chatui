@@ -111,14 +111,15 @@ const now = new Date();
 // Example usage
 (async () => {
     // await addMessage();
-    await addData("Conversation", { conversation_id: "conversation01", user_id: "yzk", timestamp: now.toISOString() });
-    await addData("Message", { conversation_id: "conversation01", user_id: "yzk", message: "how are you?", timestamp: now.toISOString() });
+    // await addData("Conversation", { conversation_id: "conversation01", user_id: "yzk", timestamp: now.toISOString() });
+    // await addData("Message", { conversation_id: "conversation01", user_id: "yzk", message: "how are you?", timestamp: now.toISOString() });
     
-    await findData("Conversation", { conversation_id: "conversation01" }, 10);
-    await findData("ChatMessage", { conversationId: 2}, 10);
-    // await findData("Message", {}, 10);
-    // await dropCollection();
-    await dropCollection("Conversation", { conversation_id: "conversation01" });
-    await dropCollection("ChatMessage", { conversationId: 2 });
+    await findData("Conversation", {}, 10);
+    await findData("ChatMessage", {}, 10);
+    
+    // await dropCollection("Conversation", { conversation_id: "conversation01" });
+    // await dropCollection("ChatMessage", { conversationId: 2 });
+    await dropCollection("Conversation", {});
+    await dropCollection("ChatMessage", {});
 
 })();

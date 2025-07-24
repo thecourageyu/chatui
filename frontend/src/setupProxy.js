@@ -15,11 +15,22 @@ module.exports = function (app) {
   app.use(
     '/mongodb',
     createProxyMiddleware({
-      target: 'http://localhost:5000', // API 2 server
+      // target: 'http://localhost:5000', // API 2 server
+      target: 'http://localhost:27018', // API 2 server
       changeOrigin: true,
       pathRewrite: { '^/mongodb': '' }, // Remove /api2 prefix when forwarding
+      logLevel: 'debug' // ✅ this helps see what’s going on
+
     })
   );
 
+  app.use(
+    '/loginserver',
+    createProxyMiddleware({
+      target: 'http://localhost:3001',
+      changeOrigin: true,
+      logLevel: 'debug' // ✅ this helps see what’s going on
+    })
+  );
   // Add more proxies as needed
 };

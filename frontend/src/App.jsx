@@ -9,18 +9,21 @@ import ChatUI2 from "./components/ChatUI2";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './components/LoginPage';
 // import Dashboard from './Dashboard';
-// import App from './App.jsx'
+
+// import { useAuth } from './components/AuthContext';  // <-- import it
 // import { AuthProvider, useAuth } from './components/AuthContext';
 import { AuthProvider } from './components/AuthContext';
 
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
+    
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 // ReactDOM.createRoot(document.getElementById('root')).render(
   return(
     <BrowserRouter>
       <AuthProvider>
+        
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/chat2" element={<ChatUI2 />} />
@@ -29,7 +32,9 @@ function App() {
             path="/chat"
             element={
               <ProtectedRoute>
-                <ChatUI user={'YZK'}/>
+                {/* <ChatUI user={'YZK'}/> */}
+                {/* <ChatUI user={user?.name || 'Guest'} /> */}
+                <ChatUI />
               </ProtectedRoute>
             }
           />
