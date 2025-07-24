@@ -39,37 +39,41 @@ async function addData(collectionName, data) {
         collectionName: collectionName,
         data: data,
     };
+
+    console.log("[INFO] addData get params:", payload);
+
     try {
         const response = await axios.post(`http://localhost:${MONGO_PORT}/add`, payload);
-        console.log("Add Response:", response.data);
+        console.log("[INFO] Add:", response.data);
     } catch (error) {
-        console.error("Add Error:", error.response ? error.response.data : error.message);
+        console.error("[ERROR] Add:", error.response ? error.response.data : error.message);
     }
 }
 
 // Get data
 export async function findData(collectionName, query, limit) {
     try {
-       
+
         const params = {
             collectionName: collectionName,
             query: JSON.stringify(query),
             limit: limit
         };
-        console.log("Get params:", params);
+        console.log("[INFO] findData get params:", params);
 
         const response = await axios.get(`http://localhost:${MONGO_PORT}/find`, {
             params
         });
-        console.log('Request URL:', response.config.url);
-
-        console.log("Get Response:", response.data);
-        console.log(`response.data.message (defined by yzk): ${response.data.message}`)
+        // console.log('Request URL:', response.config.url);
+        // console.log("Get Response:", response.data);
+        // console.log(`response.data.message (defined by yzk): ${response.data.message}`)
         // console.log(`response.data.message (defined by yzk): ${JSON.parse(response.data.data).toISOString}`)
-        console.log(`response.data.data (defined by yzk): ${response.data.data}`)
+        // console.log(`[INFO] findData: ${JSON.parse(response.data.data).toISOString}`)
+        console.log(`[INFO] findData: ${JSON.stringify(response.data.data)}`)
+
 
     } catch (error) {
-        console.error("Get Error:", error.response ? error.response.data : error.message);
+        console.error("[ERROR] findData:", error.response ? error.response.data : error.message);
     }
 }
 
@@ -84,9 +88,9 @@ async function dropCollection(collectionName, query) {
             data: payload,
 
         });
-        console.log("Drop Response:", response.data);
+        console.log("[INFO] Drop:", response.data);
     } catch (error) {
-        console.error("Drop Error:", error.response ? error.response.data : error.message);
+        console.error("[ERROR] Drop:", error.response ? error.response.data : error.message);
     }
 }
 
@@ -99,9 +103,9 @@ async function deleteData(collectionName, query) {
             data: payload,
 
         });
-        console.log("Delete Response:", response.data);
+        console.log("[INFO] Delete:", response.data);
     } catch (error) {
-        console.error("Delete Error:", error.response ? error.response.data : error.message);
+        console.error("[ERROR] Delete:", error.response ? error.response.data : error.message);
     }
 }
 
@@ -111,15 +115,21 @@ const now = new Date();
 // Example usage
 (async () => {
     // await addMessage();
-    // await addData("Conversation", { conversation_id: "conversation01", user_id: "yzk", timestamp: now.toISOString() });
-    // await addData("Message", { conversation_id: "conversation01", user_id: "yzk", message: "how are you?", timestamp: now.toISOString() });
+
+    console.log("[TEST]");
+
+    await addData("ConversationList", { conversationId: "1", user: "yzk", timestamp: now.toISOString() });
+    await addData("ConversationList", { conversationId: "2", user: "yzk", timestamp: now.toISOString() });
+    await addData("ConversationList", { conversationId: "3", user: "yupi", timestamp: now.toISOString() });
+    // await addData("Message", { conversationId: "conversation01", user_id: "yzk", message: "how are you?", timestamp: now.toISOString() });
     
-    await findData("Conversation", {}, 10);
+    await findData("ConversationList", { user: 'yzk' }, 10);
     await findData("ChatMessage", {}, 10);
     
     // await dropCollection("Conversation", { conversation_id: "conversation01" });
     // await dropCollection("ChatMessage", { conversationId: 2 });
-    await dropCollection("Conversation", {});
+    await deleteData("ConversationList", { user: "yzk", conversationId: "2" });
     await dropCollection("ChatMessage", {});
-
+    await findData("ConversationList", { user: 'yzk' }, 10);
+    await findData("ConversationList", { user: 'yupi' }, 10);
 })();

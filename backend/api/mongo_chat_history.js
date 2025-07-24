@@ -140,14 +140,17 @@ app.delete("/delete", async (request, response) => {
         const collection = db.collection(collectionName);
 
         // Filter for the document to delete
-        const filter = query; // Replace with your criteria
+        // const filter = query; // Replace with your criteria
 
+        console.log(`[INFO] app.delete filter: ${query}`)
         // Delete the document
-        // const result = await collection.deleteOne(filter);
-        const result = await collection.deleteMany(filter);
+        // const result = await collection.deleteOne(query);
+        const result = await collection.deleteMany(query);
 
         if (result.deletedCount === 1) {
-            response.status(200).json({ message: "Successfully deleted one document." } );
+            response.status(200).json({message: "Successfully deleted one document."});
+        } else if (result.deletedCount > 1) {
+            response.status(200).json({ message: `Successfully deleted ${result.deletedCount} document.` } );
         } else {
             response.status(200).json({ message: "No document matched the query. Deleted 0 documents." } );
         }
