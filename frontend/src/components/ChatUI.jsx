@@ -59,7 +59,7 @@ export async function findData(setSomething, collectionName, query, limit) {
 
 
 async function deleteData(collectionName, query) {
-  // Delete the query data
+  // Delete the queried data
   const payload = { collectionName: collectionName, query: query }
   try {
     const response = await axios.delete(`${MONGO_PROXY_PATH}/delete`, {
@@ -81,9 +81,9 @@ async function dropData(collectionName, query) {
       data: payload,
       // params: payload,
     });
-    logger.info(`Drop Response:, ${response.data}`);
+    // logger.info(`Drop Response:, ${response.data}`);
   } catch (error) {
-    logger.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
+    // logger.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
     console.error(`Drop Error:, ${error.response ? error.response.data : error.message}`);
   }
 }
@@ -108,7 +108,7 @@ function ChatUI( { user } ) {
 
   useEffect(() => {
     console.log(`current selectedConversationId: ${selectedConversationId}`)
-    const convList = findData(setConversationList, "ConversationList", {}, null)
+    const convList = findData(setConversationList, "ConversationList", { user }, null)
     if (selectedConversationId !== -1) {
       // const msg = getMessages(setHistory, "ChatMessage", { conversationId: selectedConversationId }, null);
       const msg = findData(setHistory, "ChatMessage", { user: user, conversationId: selectedConversationId, endpoint: selectedEndpoint }, null);
@@ -125,7 +125,7 @@ function ChatUI( { user } ) {
     setHistory((prevMessages) => [...prevMessages, newMessage]);
   };
 
-  // Add a new conversation
+  // Add a new conversation (conversationId)
   const addConversation = () => {
     const newId = conversationList.length ? conversationList[conversationList.length - 1].id + 1 : 1;
     const now = new Date();
