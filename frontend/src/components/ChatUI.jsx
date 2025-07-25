@@ -9,9 +9,24 @@ import MessageContainer from "./MessageContainer";
 
 import { FaMessage } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
-import { BiMessageRoundedAdd } from "react-icons/bi";
-import { useAuth } from "./AuthContext";
 
+
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  Button,
+  Paper,
+} from "@mui/material";
+import { FaMessage, FaTrash } from "react-icons/fa6";
+import AddIcon from "@mui/icons-material/Add";
+import ChatIcon from "@mui/icons-material/Chat";
 
 const MONGO_PROXY_PATH = "mongodb"  // proxy in setupProxy.js
 

@@ -24,13 +24,13 @@ module.exports = function (app) {
     })
   );
 
-  app.use(
-    '/loginserver',
-    createProxyMiddleware({
-      target: 'http://localhost:3001',
-      changeOrigin: true,
-      logLevel: 'debug' // ✅ this helps see what’s going on
-    })
-  );
+  // app.use(
+  //   '/loginserver',
+  //   createProxyMiddleware({
+  //     target: 'http://localhost:3001',
+  //     changeOrigin: true,
+  //     logLevel: 'debug' // ✅ this helps see what’s going on
+  //   })
+  // );
   // Add more proxies as needed
 };
